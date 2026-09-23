@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0A1624">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Padel Zápis">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A1624'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23D9EE3A'/%3E%3C/svg%3E">
+<title>Padel Zápis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ground:#0A1624; --surface:#11243A; --surface-2:#18314D; --line:#24415F;
+  --ink:#EEF3F8; --muted:#8FA6BF;
+  --a:#4FA3FF; --a-soft:rgba(79,163,255,.14);
+  --b:#EDD23A; --b-soft:rgba(237,210,58,.13);
+  --hot:#FF6B5A; --ok:#3DD68C;
+  --disp:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;padding-inline:16px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr auto;gap:12px;padding-block:12px}
+
+/* header */
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.02em;text-transform:none;color:var(--muted)}
+.spacer{flex:1}
+.clock{font-family:var(--disp);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
+.chip{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.chip.sample{background:rgba(255,107,90,.16);color:var(--hot)}
+.btn{min-height:44px;padding:0 14px;border-radius:10px;background:var(--surface-2);font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--line)}
+.btn.primary{background:var(--a);color:#061220}
+
+/* status strip */
+.status{display:flex;gap:8px;align-items:center;min-height:40px;flex-wrap:wrap}
+.msg{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.03em;text-transform:uppercase}
+.msg.hot{color:var(--hot)}
+.tag{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:6px}
+.tag.a{background:var(--a);color:#061220}.tag.b{background:var(--b);color:#1B1600}
+.swap{margin-left:auto;font-family:var(--disp);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.04em;background:var(--hot);color:#1A0603;padding:6px 14px;border-radius:8px;animation:pulse 1s ease-in-out 4}
+@keyframes pulse{50%{opacity:.55}}
+
+/* court */
+.court{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+.team{position:relative;border-radius:18px;background:var(--surface);display:grid;grid-template-rows:auto 1fr auto;padding:18px 20px;min-height:0;overflow:hidden;text-align:left;transition:transform .08s}
+.team:active{transform:scale(.985)}
+.team.A{box-shadow:inset 0 5px 0 var(--a)}.team.B{box-shadow:inset 0 5px 0 var(--b)}
+.team.flash.A{background:var(--a-soft)}.team.flash.B{background:var(--b-soft)}
+.players{display:flex;flex-direction:column;gap:4px}
+.pl{font-size:clamp(17px,2.2vw,24px);font-weight:500;color:var(--muted);display:flex;align-items:center;gap:8px}
+.pl.srv{color:var(--ink);font-weight:600}
+.ball{width:14px;height:14px;border-radius:50%;background:#D9EE3A;box-shadow:inset -2px -2px 0 rgba(0,0,0,.18);flex:none}
+.srvside{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--b);margin-left:4px}
+.team.A .srvside{color:var(--a)}
+.pts{align-self:center;justify-self:center;font-family:var(--disp);font-weight:800;line-height:.85;font-size:clamp(96px,17vw,230px);font-variant-numeric:tabular-nums}
+.team.A .pts{color:var(--a)}.team.B .pts{color:var(--b)}
+.foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.games{font-family:var(--disp);font-weight:700;font-size:clamp(40px,5.5vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.games small{display:block;font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.setsmini{display:flex;gap:6px}
+.setsmini span{font-family:var(--disp);font-weight:600;font-size:22px;min-width:34px;text-align:center;padding:2px 6px;border-radius:6px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.setsmini span.w{color:var(--ink);background:var(--line)}
+.hint{position:absolute;top:16px;right:18px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.7}
+
+/* bottom bar */
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.undo{min-height:56px;padding:0 22px;font-size:18px;border-radius:12px;background:var(--surface-2);font-weight:600}
+.log{flex:1;min-width:0;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* board */
+.boardv{display:none}
+body.board .app{display:none}
+body.board .boardv{display:grid;height:100%;grid-template-rows:auto 1fr auto;gap:2vh;padding-block:3vh}
+.bhead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-family:var(--disp);font-weight:600;font-size:clamp(20px,3vw,40px);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.bhead b{color:var(--ink);font-weight:700}
+.btable{align-self:center;display:grid;gap:1.6vh}
+.brow{display:grid;grid-template-columns:auto minmax(0,1.8fr) repeat(var(--cols),minmax(0,.42fr)) minmax(0,.8fr);align-items:center;gap:1.4vw;background:var(--surface);border-radius:2vh;padding:2.2vh 2vw}
+.brow.A{box-shadow:inset 1vw 0 0 var(--a)}.brow.B{box-shadow:inset 1vw 0 0 var(--b)}
+.bball{width:3.4vw;height:3.4vw;max-width:44px;max-height:44px;border-radius:50%;background:#D9EE3A;visibility:hidden;margin-left:1vw}
+.bball.on{visibility:visible}
+.bnames{font-family:var(--disp);font-weight:700;font-size:clamp(28px,5.4vw,84px);line-height:1.02;text-transform:uppercase;letter-spacing:.01em;min-width:0}
+.bnames div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bset{font-family:var(--disp);font-weight:600;font-size:clamp(34px,6.5vw,104px);text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.bset.w{color:var(--ink)}
+.bset.cur{color:var(--ink);font-weight:800}
+.bset sup{font-size:.4em;vertical-align:top;margin-left:2px}
+.bpts{font-family:var(--disp);font-weight:800;font-size:clamp(44px,9vw,150px);text-align:center;border-radius:1.4vh;padding:.5vh 0;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.brow.A .bpts{color:var(--a)}.brow.B .bpts{color:var(--b)}
+.bfoot{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:6vh}
+.bmsg{font-family:var(--disp);font-weight:800;font-size:clamp(26px,4.6vw,70px);text-transform:uppercase;letter-spacing:.04em;color:var(--hot)}
+.bexit{opacity:.35}.bexit:hover{opacity:1}
+
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(4,10,18,.78);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10;overflow:auto}
+.card{background:var(--surface);border-radius:18px;padding:22px;width:min(720px,100%);max-height:100%;overflow:auto;display:grid;gap:16px}
+.card h2{margin:0;font-family:var(--disp);font-weight:700;font-size:30px;text-transform:uppercase;letter-spacing:.03em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+legend{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;padding:0}
+legend.a{color:var(--a)}legend.b{color:var(--b)}
+input[type=text],select{width:100%;min-height:46px;border-radius:10px;border:1px solid var(--line);background:var(--ground);color:var(--ink);font:inherit;padding:0 12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{flex:1;min-width:120px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;text-align:center;padding:10px 8px;border-radius:10px;background:var(--ground);border:1px solid var(--line);font-weight:600;font-size:15px;cursor:pointer}
+.seg span small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.seg input:checked+span{border-color:var(--a);background:var(--a-soft)}
+.seg input:focus-visible+span{outline:3px solid var(--a);outline-offset:2px}
+.actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.result{font-family:var(--disp);font-weight:700;font-size:34px;line-height:1.1}
+.muted{color:var(--muted);font-size:14px;line-height:1.5}
+pre.copy{white-space:pre-wrap;background:var(--ground);border-radius:10px;padding:12px;font-size:13px;margin:0;-webkit-user-select:text;user-select:text;max-height:200px;overflow:auto}
+
+/* screens */
+.screen{display:none}
+body[data-view=home] #home{display:flex}
+body[data-view=match] #app{display:grid}
+body[data-view=amer] #amer{display:grid}
+body[data-view=amscore] #amScore{display:grid}
+body.board .screen{display:none!important}
+#amBoard{display:none}
+body.board[data-view=match] #boardv{display:grid}
+body.board[data-view=amer] #amBoard,body.board[data-view=amscore] #amBoard{display:grid}
+body.board[data-view=amer] #boardv,body.board[data-view=amscore] #boardv{display:none}
+.home-btn{width:44px;height:44px;border-radius:10px;background:var(--surface-2);font-size:20px;display:inline-flex;align-items:center;justify-content:center}
+
+/* home */
+#home{height:100%;flex-direction:column;justify-content:center;gap:28px;max-width:980px;margin-inline:auto;padding-block:24px}
+.hero h1{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(44px,7vw,80px);line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.hero p{margin:10px 0 0;color:var(--muted);font-size:17px;max-width:56ch;line-height:1.5}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mode{background:var(--surface);border-radius:18px;padding:22px;text-align:left;display:grid;gap:10px;align-content:start;min-height:200px;transition:background .15s}
+.mode:hover{background:var(--surface-2)}
+.mode.m1{box-shadow:inset 0 5px 0 var(--a)}.mode.m2{box-shadow:inset 0 5px 0 var(--b)}
+.mode h3{margin:0;font-family:var(--disp);font-weight:700;font-size:34px;text-transform:uppercase;letter-spacing:.02em}
+.mode p{margin:0;color:var(--muted);line-height:1.5}
+.mode .go{margin-top:auto;font-weight:600;font-size:15px}
+.mode.m1 .go{color:var(--a)}.mode.m2 .go{color:var(--b)}
+.homefoot{color:var(--muted);font-size:13px}
+
+/* americano */
+#amer{height:100%;grid-template-rows:auto auto 1fr;gap:12px;padding-block:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{min-height:44px;padding:0 18px;border-radius:10px;font-weight:600;background:var(--surface);color:var(--muted)}
+.tab[aria-selected=true]{background:var(--b);color:#1B1600}
+.amc{min-height:0;overflow:auto;padding-bottom:16px}
+.rnav{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.rnav h2{margin:0;font-family:var(--disp);font-weight:700;font-size:30px;text-transform:uppercase;letter-spacing:.03em;min-width:150px}
+.rnav .rest{color:var(--muted);font-size:15px}
+.courts{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.cc{background:var(--surface);border-radius:14px;padding:16px;display:grid;gap:12px}
+.cc.done{background:#0F2034}
+.cc .ch{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cc .ch .ok{color:var(--ok)}
+.pair{display:grid;grid-template-columns:1fr 84px;align-items:center;gap:10px}
+.pair .nm{font-size:18px;font-weight:600;line-height:1.25}
+.pair .nm span{display:block}
+.pair input{width:100%;min-height:52px;border-radius:10px;border:1px solid var(--line);background:var(--ground);color:var(--ink);font-family:var(--disp);font-weight:700;font-size:30px;text-align:center;font-variant-numeric:tabular-nums}
+.pair.pa .nm{color:var(--a)}.pair.pb .nm{color:var(--b)}
+.vs{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.tbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tbl th{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
+.tbl th:nth-child(2),.tbl td:nth-child(2){text-align:left}
+.tbl td{padding:12px 10px;text-align:right;border-bottom:1px solid var(--surface-2);font-size:17px}
+.tbl td.rk{font-family:var(--disp);font-weight:700;font-size:22px;color:var(--muted);width:48px}
+.tbl td.pt{font-family:var(--disp);font-weight:800;font-size:26px;color:var(--b)}
+.tbl tr.podium td.rk{color:var(--b)}
+.tblwrap{overflow-x:auto;background:var(--surface);border-radius:14px;padding:6px 8px}
+.sched{display:grid;gap:10px}
+.srow{background:var(--surface);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start}
+.srow.cur{box-shadow:inset 4px 0 0 var(--b)}
+.srow b{font-family:var(--disp);font-size:22px;text-transform:uppercase}
+.srow ul{margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:15px}
+.srow li span{color:var(--muted)}
+.srow .sc{font-family:var(--disp);font-weight:700;font-size:18px;color:var(--ink)}
+
+/* americano board */
+#amBoard{height:100%;grid-template-rows:auto 1fr auto;gap:2vh;padding-block:3vh}
+.abody{display:grid;grid-template-columns:1.1fr 1fr;gap:2.4vw;min-height:0}
+.alb{display:grid;align-content:start;gap:.8vh;min-height:0;overflow:hidden}
+.alr{display:grid;grid-template-columns:3.4vw 1fr auto;align-items:center;gap:1.2vw;background:var(--surface);border-radius:1.2vh;padding:.9vh 1.4vw;font-family:var(--disp);font-weight:700;font-size:clamp(18px,2.6vw,44px)}
+.alr .r{color:var(--muted)}.alr.top .r{color:var(--b)}
+.alr .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.alr .p{color:var(--b);font-variant-numeric:tabular-nums}
+.amt{display:grid;align-content:start;gap:1.4vh}
+.amt h3{margin:0;font-family:var(--disp);font-weight:700;font-size:clamp(20px,2.6vw,42px);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.amm{background:var(--surface);border-radius:1.4vh;padding:1.2vh 1.4vw;display:grid;grid-template-columns:1fr auto;gap:.4vh 1vw;font-family:var(--disp);font-weight:600;font-size:clamp(16px,2.1vw,34px);align-items:center}
+.amm .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amm .s{font-weight:800;font-variant-numeric:tabular-nums}
+.amm .t.a,.amm .s.a{color:var(--a)}.amm .t.b,.amm .s.b{color:var(--b)}
+.amm .c{grid-column:1/-1;font-size:.6em;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+
+@media (max-width:760px), (orientation:portrait) and (max-width:900px){
+  .modes{grid-template-columns:1fr}
+  #amer{height:auto;min-height:100%}
+  .amc{overflow:visible}
+  .abody{grid-template-columns:1fr}
+}
+@media (max-width:760px), (orientation:portrait) and (max-width:900px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100%}
+  .court{grid-template-columns:1fr}
+  .team{min-height:34vh}
+  .grid2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+</style>
+</head>
+<body>
+
+<section class="screen" id="home">
+  <div class="hero">
+    <h1>Padel Zápis</h1>
+    <p>Zápis padelových zápasů pro rozhodčí a pořadatele. Běží v prohlížeči tabletu, skóre jde promítat na obrazovku.</p>
+  </div>
+  <div class="modes">
+    <button class="mode m1" id="goMatch"><h3>Zápas</h3><p>Oficiální zápis podle pravidel FIP: Star point, zlatý bod nebo výhody, tie-break, super tie-break, podání a výměna stran.</p><span class="go" id="goMatchTxt">Otevřít zápis ›</span></button>
+    <button class="mode m2" id="goAmer"><h3>Americano</h3><p>Každý hraje s každým. Rozpis kol a kurtů, zápis bodů, průběžné pořadí jednotlivců a tabule pro diváky.</p><span class="go" id="goAmerTxt">Otevřít americano ›</span></button>
+  </div>
+  <div class="homefoot">Data zůstávají v tomto zařízení. Export do JSON připravuje napojení na systém federace.</div>
+</section>
+
+<div class="app screen" id="app">
+  <header class="top">
+    <button class="home-btn" data-home title="Úvod">⌂</button>
+    <div class="brand">Padel Zápis<small id="evt">—</small></div>
+    <span class="chip" id="modeChip">Star point</span>
+    <span class="chip sample" id="sampleChip" hidden>Ukázkový zápas</span>
+    <div class="spacer"></div>
+    <span class="clock" id="clock">0:00</span>
+    <button class="btn" id="swapBtn" title="Prohodit strany na displeji">⇄ Strany</button>
+    <button class="btn" id="boardBtn" title="Zobrazit tabuli pro diváky (B)">Tabule</button>
+    <button class="btn" data-export="match">Export</button>
+    <button class="btn primary" id="newBtn">Nový zápas</button>
+  </header>
+  <div class="status" id="status"></div>
+  <main class="court" id="court">
+    <button class="team" id="p0" data-slot="0"></button>
+    <button class="team" id="p1" data-slot="1"></button>
+  </main>
+  <footer class="bar">
+    <button class="undo" id="undoBtn">↶ Zpět</button>
+    <div class="log" id="log"></div>
+  </footer>
+</div>
+
+<div class="boardv" id="boardv">
+  <div class="bhead"><span id="bEvt"></span><span id="bClock"></span></div>
+  <div class="btable" id="btable"></div>
+  <div class="bfoot"><span class="bmsg" id="bMsg"></span><button class="btn bexit" id="bExit">Zpět k zápisu</button></div>
+</div>
+
+<!-- AMERICANO -->
+<section class="screen" id="amer">
+  <header class="top">
+    <button class="home-btn" data-home title="Úvod">⌂</button>
+    <div class="brand">Americano<small id="aEvt">—</small></div>
+    <span class="chip" id="aChip"></span>
+    <span class="chip sample" id="aSample" hidden>Ukázkový turnaj</span>
+    <div class="spacer"></div>
+    <button class="btn" id="aBoardBtn">Tabule</button>
+    <button class="btn" data-export="amer">Export</button>
+    <button class="btn primary" id="aNewBtn">Nový turnaj</button>
+  </header>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="round" aria-selected="true">Kolo</button>
+    <button class="tab" role="tab" data-tab="rank" aria-selected="false">Pořadí</button>
+    <button class="tab" role="tab" data-tab="sched" aria-selected="false">Rozpis</button>
+  </div>
+  <div class="amc" id="amc"></div>
+</section>
+
+<div class="app screen" id="amScore">
+  <header class="top">
+    <button class="btn" id="asBack">‹ Kolo</button>
+    <div class="brand" id="asTitle">Kurt 1<small id="asSub"></small></div>
+    <div class="spacer"></div>
+    <button class="btn" id="asRot" title="Posunout, kdo podává">Podání ⟳</button>
+    <button class="btn" id="asBoard">Tabule</button>
+  </header>
+  <div class="status" id="asStatus"></div>
+  <main class="court">
+    <button class="team A" id="q0"></button>
+    <button class="team B" id="q1"></button>
+  </main>
+  <footer class="bar">
+    <button class="undo" id="asUndo">↶ Zpět</button>
+    <div class="log" id="asLog"></div>
+    <button class="btn primary" id="asDone" hidden>Hotovo · zpět na kolo</button>
+  </footer>
+</div>
+
+<div id="amBoard">
+  <div class="bhead"><span id="abEvt"></span><span id="abRound"></span></div>
+  <div class="abody"><div class="alb" id="abRank"></div><div class="amt" id="abMatches"></div></div>
+  <div class="bfoot"><span class="bmsg" id="abMsg"></span><button class="btn bexit" id="abExit">Zpět</button></div>
+</div>
+
+<div class="ov" id="aSetup" hidden>
+  <form class="card" id="aForm">
+    <h2>Nové americano</h2>
+    <fieldset><legend>Název turnaje</legend><input type="text" id="aFEvt" placeholder="např. Středeční americano"></fieldset>
+    <fieldset><legend>Hráči · jeden na řádek (ideálně 8, 12, 16…)</legend>
+      <textarea id="aFPl" rows="8" style="width:100%;border-radius:10px;border:1px solid var(--line);background:var(--ground);color:var(--ink);font:inherit;padding:10px 12px;resize:vertical"></textarea>
+      <div class="muted" id="aFInfo"></div></fieldset>
+    <fieldset><legend>Bodů na zápas</legend><div class="seg">
+      <label><input type="radio" name="ppm" value="16"><span>16</span></label>
+      <label><input type="radio" name="ppm" value="21"><span>21</span></label>
+      <label><input type="radio" name="ppm" value="24" checked><span>24</span></label>
+      <label><input type="radio" name="ppm" value="32"><span>32</span></label>
+    </div></fieldset>
+    <div class="grid2">
+      <fieldset><legend>Počet kurtů</legend><input type="text" inputmode="numeric" id="aFCourts"></fieldset>
+      <fieldset><legend>Počet kol</legend><input type="text" inputmode="numeric" id="aFRounds"></fieldset>
+    </div>
+    <fieldset><legend>Podání se střídá po</legend><div class="seg">
+      <label><input type="radio" name="se" value="2"><span>2 bodech</span></label>
+      <label><input type="radio" name="se" value="4" checked><span>4 bodech</span></label>
+    </div></fieldset>
+    <div class="actions"><button type="button" class="btn" id="aCancel">Zrušit</button><button type="submit" class="btn primary">Vytvořit rozpis</button></div>
+  </form>
+</div>
+
+<div class="ov" id="expOv" hidden>
+  <div class="card">
+    <h2>Export dat</h2>
+    <p class="muted" style="margin:0">Strukturovaný záznam ve formátu JSON. Připravený pro budoucí import do systému federace, zatím jde zkopírovat a poslat nebo uložit.</p>
+    <pre class="copy" id="expTxt" style="max-height:340px"></pre>
+    <div class="actions"><button class="btn" id="expClose">Zavřít</button><button class="btn primary" id="expCopy">Kopírovat JSON</button></div>
+  </div>
+</div>
+
+<div class="ov" id="setup" hidden>
+  <form class="card" id="setupForm">
+    <h2>Nový zápas</h2>
+    <fieldset><legend>Turnaj / kurt</legend><input type="text" id="fEvt" placeholder="např. Klatovy Open · Kurt 1"></fieldset>
+    <div class="grid2">
+      <fieldset><legend class="a">Tým A</legend>
+        <input type="text" id="fA1" placeholder="Hráč 1" required><input type="text" id="fA2" placeholder="Hráč 2" required></fieldset>
+      <fieldset><legend class="b">Tým B</legend>
+        <input type="text" id="fB1" placeholder="Hráč 1" required><input type="text" id="fB2" placeholder="Hráč 2" required></fieldset>
+    </div>
+    <fieldset><legend>Formát</legend><div class="seg">
+      <label><input type="radio" name="fmt" value="3" checked><span>2 vítězné sety<small>tie-break při 6:6</small></span></label>
+      <label><input type="radio" name="fmt" value="stb"><span>2 sety + super TB<small>3. set = TB do 10</small></span></label>
+      <label><input type="radio" name="fmt" value="1"><span>1 set<small>tie-break při 6:6</small></span></label>
+    </div></fieldset>
+    <fieldset><legend>Při shodě 40:40</legend><div class="seg">
+      <label><input type="radio" name="deuce" value="star" checked><span>Star point<small>FIP 2026 · 2 výhody, pak rozhodující bod</small></span></label>
+      <label><input type="radio" name="deuce" value="golden"><span>Zlatý bod<small>rozhodující bod hned</small></span></label>
+      <label><input type="radio" name="deuce" value="adv"><span>Výhody<small>bez omezení</small></span></label>
+    </div></fieldset>
+    <div class="grid2">
+      <fieldset><legend>Podává první</legend><select id="fS1"></select></fieldset>
+      <fieldset><legend>První podání soupeře</legend><select id="fR1"></select></fieldset>
+    </div>
+    <fieldset><legend>Vlevo z pohledu rozhodčího</legend><div class="seg">
+      <label><input type="radio" name="left" value="0" checked><span>Tým A</span></label>
+      <label><input type="radio" name="left" value="1"><span>Tým B</span></label>
+    </div></fieldset>
+    <div class="actions"><button type="button" class="btn" id="cancelSetup">Zrušit</button><button type="submit" class="btn primary">Začít zápas</button></div>
+  </form>
+</div>
+
+<div class="ov" id="endOv" hidden>
+  <div class="card">
+    <h2>Konec zápasu</h2>
+    <div class="result" id="endRes"></div>
+    <div class="muted" id="endMeta"></div>
+    <pre class="copy" id="endTxt"></pre>
+    <div class="actions">
+      <button class="btn" id="endUndo">↶ Vrátit poslední bod</button>
+      <button class="btn" id="copyBtn">Kopírovat záznam</button>
+      <button class="btn primary" id="endNew">Nový zápas</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const KEY='padelZapis.v1';
+const DISP=['0','15','30','40'];
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ---------- state ---------- */
+function sample(){
+  return {cfg:{event:'Ukázka · Kurt 1',names:[['Novák','Svoboda'],['Dvořák','Černý']],format:'stb',deuce:'star',rot:[[0,0],[1,0],[0,1],[1,1]]},
+    sets:[{g:[6,4],tb:null}],games:[3,2],pts:[2,1],tb:0,tbStart:0,srv:1,left:0,done:false,winner:null,
+    start:Date.now()-52*60000,end:null,log:[],sample:true,swapAt:0};
+}
+function fresh(cfg,left){
+  return {cfg,sets:[],games:[0,0],pts:[0,0],tb:0,tbStart:0,srv:0,left,done:false,winner:null,start:Date.now(),end:null,log:[],sample:false,swapAt:0};
+}
+let S, H=[];
+function load(){try{const r=JSON.parse(localStorage.getItem(KEY)||'null');if(r&&r.cur){S=r.cur;H=r.hist||[];return}}catch(e){} S=sample();H=[];}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({cur:S,hist:H.slice(-400)}))}catch(e){}}
+
+/* ---------- rules ---------- */
+const need=s=>s.cfg.format==='1'?1:2;
+const setWins=s=>{const w=[0,0];s.sets.forEach(x=>w[x.g[0]>x.g[1]?0:1]++);return w};
+function curServer(s){
+  if(s.tb){const k=s.pts[0]+s.pts[1];return (s.tbStart+Math.floor((k+1)/2))%4}
+  return s.srv;
+}
+function swap(n){n.left=1-n.left;n.swapAt=Date.now()}
+function winGame(n,t,wasTB){
+  const o=1-t;
+  n.games[t]++;
+  const tbPts=wasTB?[...n.pts]:null;
+  n.pts=[0,0];
+  n.srv=wasTB?(n.tbStart+1)%4:(n.srv+1)%4;
+  const g=n.games[t],h=n.games[o];
+  if(wasTB||(g>=6&&g-h>=2)){
+    n.sets.push({g:[...n.games],tb:tbPts,sup:wasTB&&n.tb===10});
+    n.games=[0,0];n.tb=0;
+    if(setWins(n)[t]>=need(n)){n.done=true;n.winner=t;n.end=Date.now();return}
+    if((g+h)%2===1)swap(n);
+    if(n.cfg.format==='stb'&&n.sets.length===2){n.tb=10;n.tbStart=n.srv}
+  }else{
+    if(g===6&&h===6){n.tb=7;n.tbStart=n.srv}
+    if((g+h)%2===1)swap(n);
+  }
+}
+function applyPoint(s,t,rec){
+  if(s.done)return s;
+  const n=clone(s),o=1-t;
+  if(rec)n.log.push([t,Date.now()]);
+  const eq=s.pts[t]===s.pts[o]?s.pts[t]:-1;
+  n.pts[t]++;
+  if(n.tb){
+    if(n.pts[t]>=n.tb&&n.pts[t]-n.pts[o]>=2)winGame(n,t,true);
+    else if((n.pts[0]+n.pts[1])%6===0)swap(n);
+  }else{
+    const thr={golden:3,star:5,adv:99}[n.cfg.deuce];
+    if(n.pts[t]>=4&&(n.pts[t]-n.pts[o]>=2||eq>=thr))winGame(n,t,false);
+  }
+  return n;
+}
+function ptsLabel(s,t){
+  if(s.tb)return String(s.pts[t]);
+  const p=s.pts[t],q=s.pts[1-t];
+  if(p>=3&&q>=3)return p>q?'AD':'40';
+  return DISP[p];
+}
+function status(s){
+  const out={msg:'',hot:false,tags:[]};
+  if(s.done){out.msg='Konec zápasu';return out}
+  if(s.tb){out.msg=s.tb===10?'Super tie-break':'Tie-break'}
+  else{
+    const [a,b]=s.pts;
+    if(a===b&&a>=3){
+      const d=s.cfg.deuce;
+      if(d==='golden'){out.msg='Zlatý bod · přijímající volí stranu';out.hot=true}
+      else if(d==='star'){const k=a-2;
+        if(k>=3){out.msg='Star point · přijímající volí stranu';out.hot=true}
+        else out.msg=k===1?'Shoda':'2. shoda · poslední výhoda'}
+      else out.msg='Shoda';
+    }else if(a>=3&&b>=3){out.msg='Výhoda '+teamName(s,a>b?0:1)}
+  }
+  [0,1].forEach(t=>{const n=applyPoint(s,t,false);
+    if(n.done)out.tags.push([t,'Mečbol']);else if(n.sets.length>s.sets.length)out.tags.push([t,'Setbol'])});
+  return out;
+}
+const teamName=(s,t)=>s.cfg.names[t].join(' / ');
+const setStr=x=>x.sup?`[${x.tb[0]}:${x.tb[1]}]`:`${x.g[0]}:${x.g[1]}`+(x.tb?`(${Math.min(x.tb[0],x.tb[1])})`:'');
+const fmtDur=ms=>{const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h}:${String(m%60).padStart(2,'0')} h`:`${m} min`};
+
+/* ---------- actions ---------- */
+function point(t){
+  if(S.done)return;
+  H.push(S);S=applyPoint(S,t,true);S.sample=false;save();render();flash(t);
+}
+function undo(){if(!H.length)return;S=H.pop();save();render()}
+function flash(t){const el=$('p'+(S.left===t?0:1));el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),180)}
+
+/* ---------- render ---------- */
+function render(){
+  const s=S,srv=curServer(s),[st,sp]=s.cfg.rot[srv];
+  $('evt').textContent=s.cfg.event||'Bez názvu';
+  $('modeChip').textContent={star:'Star point',golden:'Zlatý bod',adv:'Výhody'}[s.cfg.deuce]+' · '+{3:'2 vítězné sety',stb:'Super TB',1:'1 set'}[s.cfg.format];
+  $('sampleChip').hidden=!s.sample;
+  const side=(s.pts[0]+s.pts[1])%2===0?'zprava':'zleva';
+  [0,1].forEach(slot=>{
+    const t=slot===0?s.left:1-s.left,el=$('p'+slot);
+    el.className='team '+(t===0?'A':'B');el.dataset.team=t;
+    const pl=s.cfg.names[t].map((nm,i)=>{const on=!s.done&&st===t&&sp===i;
+      return `<div class="pl${on?' srv':''}">${on?'<span class="ball"></span>':''}${esc(nm)}${on?`<span class="srvside">podání ${side}</span>`:''}</div>`}).join('');
+    const sets=s.sets.map(x=>{const v=x.sup?x.tb[t]:x.g[t],w=(x.g[0]>x.g[1]?0:1)===t;return `<span class="${w?'w':''}">${v}</span>`}).join('');
+    el.innerHTML=`<span class="hint">${t===0?'Tým A':'Tým B'} · bod</span><div class="players">${pl}</div>
+      <div class="pts">${s.done?(s.winner===t?'✓':''):ptsLabel(s,t)}</div>
+      <div class="foot"><div class="games"><small>${s.tb===10?'Sety':'Gamy'}</small>${s.tb===10?setWins(s)[t]:s.games[t]}</div><div class="setsmini">${sets}</div></div>`;
+    el.setAttribute('aria-label','Bod pro '+teamName(s,t));
+  });
+  const stt=status(s);
+  let h=`<span class="msg${stt.hot?' hot':''}">${esc(stt.msg)}</span>`;
+  stt.tags.forEach(([t,l])=>h+=`<span class="tag ${t?'b':'a'}">${l} ${t?'B':'A'}</span>`);
+  if(Date.now()-s.swapAt<9000)h+=`<span class="swap">⇄ Výměna stran</span>`;
+  $('status').innerHTML=h;
+  const done=s.sets.map(setStr).join('  ');
+  $('log').textContent=(done?'Sety: '+done+'  ·  ':'')+'Aktuální set: '+s.games.join(':')+(H.length?'  ·  zaznamenáno bodů: '+s.log.length:'');
+  $('undoBtn').disabled=!H.length;$('undoBtn').style.opacity=H.length?1:.4;
+  renderBoard(stt,srv);
+  $('endOv').hidden=!s.done||document.body.classList.contains('board')||VIEW!=='match';
+  if(s.done)renderEnd();
+  tick();
+}
+function renderBoard(stt,srv){
+  const s=S,cols=Math.max(s.sets.length+(s.done?0:1),1);
+  $('bEvt').innerHTML=esc(s.cfg.event||'Padel');
+  let h='';
+  [0,1].forEach(t=>{
+    const on=!s.done&&s.cfg.rot[srv][0]===t;
+    let cells=s.sets.map(x=>{const w=(x.g[0]>x.g[1]?0:1)===t;
+      return `<div class="bset${w?' w':''}">${x.sup?x.tb[t]:x.g[t]}${x.tb&&!x.sup&&!w?`<sup>${x.tb[t]}</sup>`:''}</div>`}).join('');
+    if(!s.done)cells+=s.tb===10?`<div class="bset cur">–</div>`:`<div class="bset cur">${s.games[t]}</div>`;
+    h+=`<div class="brow ${t?'B':'A'}" style="--cols:${cols}"><div class="bball${on?' on':''}"></div>
+      <div class="bnames">${s.cfg.names[t].map(n=>`<div>${esc(n)}</div>`).join('')}</div>${cells}
+      <div class="bpts">${s.done?(s.winner===t?'✓':''):ptsLabel(s,t)}</div></div>`;
+  });
+  $('btable').innerHTML=h;
+  let m=stt.msg&&(stt.hot||s.tb||s.done)?stt.msg:'';
+  if(stt.tags.length)m=stt.tags.map(([t,l])=>l+' '+(t?'B':'A')).join(' · ');
+  if(Date.now()-s.swapAt<9000&&!s.done)m=m?m+' · Výměna stran':'Výměna stran';
+  $('bMsg').textContent=m.replace(' · přijímající volí stranu','');
+}
+function renderEnd(){
+  const s=S,w=s.winner,res=s.sets.map(x=>{const v=x.sup?x.tb:x.g;return w===0?`${v[0]}:${v[1]}`:`${v[1]}:${v[0]}`}).join('  ');
+  $('endRes').innerHTML=`${esc(teamName(s,w))}<br><span style="color:var(--muted);font-weight:600">${res}</span>`;
+  const pw=[0,0];s.log.forEach(([t])=>pw[t]++);
+  const dur=fmtDur((s.end||Date.now())-s.start);
+  $('endMeta').textContent=`Délka zápasu ${dur}`+(s.log.length?` · vyhrané body ${pw[0]} : ${pw[1]} (A : B)`:'');
+  const d=new Date(s.start);
+  $('endTxt').textContent=[
+    `${s.cfg.event||'Zápas'} · ${d.toLocaleDateString('cs-CZ')} ${d.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}`,
+    `A: ${teamName(s,0)}`,`B: ${teamName(s,1)}`,
+    `Vítěz: ${w===0?'A':'B'} · ${teamName(s,w)}`,
+    `Výsledek (A:B): ${s.sets.map(setStr).join(', ')}`,
+    `Délka: ${dur}`+(s.log.length?` · body A:B ${pw[0]}:${pw[1]}`:''),
+    `Pravidla: ${{star:'Star point',golden:'Zlatý bod',adv:'Výhody'}[s.cfg.deuce]}, ${{3:'2 vítězné sety',stb:'2 sety + super TB',1:'1 set'}[s.cfg.format]}`
+  ].join('\n');
+}
+function tick(){const t=fmtClock((S.end||Date.now())-S.start);$('clock').textContent=t;$('bClock').textContent=t}
+const fmtClock=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0')};
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- setup ---------- */
+function openSetup(){
+  const c=S.sample?null:S.cfg;
+  $('fEvt').value=c?c.event:'';
+  ['fA1','fA2','fB1','fB2'].forEach((id,i)=>$(id).value=c?c.names[i>>1][i&1]:'');
+  fillServers();$('setup').hidden=false;$('fA1').focus();
+}
+function names(){return [[$('fA1').value.trim()||'Hráč A1',$('fA2').value.trim()||'Hráč A2'],[$('fB1').value.trim()||'Hráč B1',$('fB2').value.trim()||'Hráč B2']]}
+function fillServers(){
+  const n=names(),keep=$('fS1').value||'0-0';
+  $('fS1').innerHTML=[0,1].flatMap(t=>[0,1].map(p=>`<option value="${t}-${p}">${t?'B':'A'} · ${esc(n[t][p])}</option>`)).join('');
+  $('fS1').value=keep;fillRecv();
+}
+function fillRecv(){
+  const n=names(),o=1-(+$('fS1').value[0]),keep=$('fR1').value;
+  $('fR1').innerHTML=[0,1].map(p=>`<option value="${o}-${p}">${o?'B':'A'} · ${esc(n[o][p])}</option>`).join('');
+  if(keep&&keep[0]==String(o))$('fR1').value=keep;
+}
+['fA1','fA2','fB1','fB2'].forEach(id=>$(id).addEventListener('input',fillServers));
+$('fS1').addEventListener('change',fillRecv);
+$('setupForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target),[st,sp]=$('fS1').value.split('-').map(Number),[rt,rp]=$('fR1').value.split('-').map(Number);
+  const cfg={event:$('fEvt').value.trim(),names:names(),format:f.get('fmt'),deuce:f.get('deuce'),rot:[[st,sp],[rt,rp],[st,1-sp],[rt,1-rp]]};
+  S=fresh(cfg,+f.get('left'));H=[];save();$('setup').hidden=true;render();wake();
+});
+$('cancelSetup').onclick=()=>$('setup').hidden=true;
+
+/* ---------- wiring ---------- */
+$('p0').onclick=()=>point(+$('p0').dataset.team);
+$('p1').onclick=()=>point(+$('p1').dataset.team);
+$('undoBtn').onclick=undo;$('endUndo').onclick=undo;
+$('newBtn').onclick=openSetup;$('endNew').onclick=()=>{$('endOv').hidden=true;openSetup()};
+$('swapBtn').onclick=()=>{S.left=1-S.left;save();render()};
+function board(on){
+  document.body.classList.toggle('board',on);
+  if(on){try{document.documentElement.requestFullscreen?.().catch(()=>{})}catch(e){}}
+  else{try{document.fullscreenElement&&document.exitFullscreen().catch(()=>{})}catch(e){} if(location.hash.startsWith('#tabule'))history.replaceState(null,'',location.pathname+location.search)}
+  render();aRender();
+}
+$('boardBtn').onclick=()=>board(true);$('bExit').onclick=()=>board(false);
+$('copyBtn').onclick=()=>{const t=$('endTxt').textContent;
+  navigator.clipboard?.writeText(t).then(()=>$('copyBtn').textContent='Zkopírováno ✓').catch(sel)||sel();
+  function sel(){const r=document.createRange();r.selectNodeContents($('endTxt'));const g=getSelection();g.removeAllRanges();g.addRange(r)}};
+document.addEventListener('keydown',e=>{
+  if(!$('setup').hidden||!$('aSetup').hidden||!$('expOv').hidden||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  const onBoard=document.body.classList.contains('board');
+  if(VIEW==='match'&&!onBoard){
+    if(e.key==='ArrowLeft')point(S.left);
+    else if(e.key==='ArrowRight')point(1-S.left);
+    else if(e.key==='Backspace'||(e.key==='z'&&(e.ctrlKey||e.metaKey))){e.preventDefault();undo()}
+  }
+  if(VIEW==='amscore'&&!onBoard){
+    if(e.key==='ArrowLeft')aPoint(0);
+    else if(e.key==='ArrowRight')aPoint(1);
+    else if(e.key==='Backspace'||(e.key==='z'&&(e.ctrlKey||e.metaKey))){e.preventDefault();aUndo()}
+  }
+  if(VIEW!=='home'&&(e.key==='b'||e.key==='B'))board(!onBoard);
+  else if(e.key==='Escape'&&onBoard)board(false);
+});
+/* second window on same device (e.g. laptop + projector) stays in sync */
+window.addEventListener('storage',e=>{if(e.key===KEY){load();render()} if(e.key===AKEY){aLoad();aRender()}});
+
+/* =================== VIEWS =================== */
+const VKEY='padelZapis.view';
+var VIEW='home';
+function go(v){VIEW=v;document.body.dataset.view=v;try{localStorage.setItem(VKEY,v)}catch(e){} render();aRender();homeRender();window.scrollTo(0,0)}
+document.querySelectorAll('[data-home]').forEach(b=>b.onclick=()=>go('home'));
+$('goMatch').onclick=()=>go('match');
+$('goAmer').onclick=()=>go('amer');
+function homeRender(){
+  $('goMatchTxt').textContent=S.sample?'Otevřít zápis ›':(S.done?'Poslední zápas: dohráno ›':'Pokračovat v zápase ›');
+  $('goAmerTxt').textContent=A.sample?'Otevřít americano ›':`Pokračovat: ${A.event||'turnaj'} · kolo ${A.cur+1}/${A.rounds.length} ›`;
+}
+
+/* =================== EXPORT =================== */
+const SCHEMA='padel-zapis/1';
+function exportMatch(){
+  const s=S;
+  return {schema:SCHEMA,type:'match',event:s.cfg.event||null,startedAt:new Date(s.start).toISOString(),endedAt:s.end?new Date(s.end).toISOString():null,
+    rules:{deuce:s.cfg.deuce,format:s.cfg.format,tiebreakAt:'6-6'},
+    teams:[0,1].map(t=>({id:t?'B':'A',players:s.cfg.names[t]})),
+    serveOrder:s.cfg.rot.map(([t,p])=>s.cfg.names[t][p]),
+    sets:s.sets.map(x=>x.sup?{superTiebreak:x.tb}:{games:x.g,tiebreak:x.tb}),
+    current:s.done?null:{games:s.games,points:s.pts,tiebreak:!!s.tb},
+    winner:s.done?(s.winner?'B':'A'):null,
+    points:s.log.map(([t,ts])=>({team:t?'B':'A',at:new Date(ts).toISOString()}))};
+}
+function exportAmer(){
+  const st=aStandings();
+  return {schema:SCHEMA,type:'americano',event:A.event||null,createdAt:new Date(A.created).toISOString(),
+    rules:{pointsPerMatch:A.ppm,serveChangeEvery:A.se,courts:A.courts},
+    players:A.players.map((n,i)=>({id:i+1,name:n})),
+    rounds:A.rounds.map((r,ri)=>({round:ri+1,resting:r.rest.map(i=>i+1),
+      matches:r.matches.map(m=>({court:m.c,teamA:m.a.map(i=>i+1),teamB:m.b.map(i=>i+1),score:m.s}))})),
+    standings:st.map((p,k)=>({rank:k+1,id:p.i+1,name:A.players[p.i],points:p.pts,played:p.pl,won:p.w,drawn:p.d,lost:p.l,diff:p.diff}))};
+}
+document.querySelectorAll('[data-export]').forEach(b=>b.onclick=()=>{
+  $('expTxt').textContent=JSON.stringify(b.dataset.export==='match'?exportMatch():exportAmer(),null,2);
+  $('expCopy').textContent='Kopírovat JSON';$('expOv').hidden=false;
+});
+$('expClose').onclick=()=>$('expOv').hidden=true;
+$('expCopy').onclick=()=>{const t=$('expTxt').textContent;
+  const sel=()=>{const r=document.createRange();r.selectNodeContents($('expTxt'));const g=getSelection();g.removeAllRanges();g.addRange(r)};
+  try{navigator.clipboard.writeText(t).then(()=>$('expCopy').textContent='Zkopírováno ✓',sel)}catch(e){sel()}};
+
+/* =================== AMERICANO =================== */
+const AKEY='padelZapis.amer.v1';
+var A=null,ATAB='round',AVIEWR=0;
+function aSave(){try{localStorage.setItem(AKEY,JSON.stringify(A))}catch(e){}}
+function aLoad(){try{A=JSON.parse(localStorage.getItem(AKEY)||'null')}catch(e){A=null} if(!A)A=aSample(); AVIEWR=A.cur}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function genSchedule(n,courts,rounds){
+  const P=[...Array(n)].map(()=>Array(n).fill(0)),O=[...Array(n)].map(()=>Array(n).fill(0)),R=Array(n).fill(0),out=[];
+  const act=Math.min(courts,Math.floor(n/4))*4;
+  for(let r=0;r<rounds;r++){
+    const byRest=shuffle([...Array(n).keys()]).sort((x,y)=>R[x]-R[y]);
+    const rest=byRest.slice(0,n-act),play=byRest.slice(n-act);
+    let best=null,bc=Infinity;
+    for(let t=0;t<600&&bc>0;t++){
+      shuffle(play);let cost=0;const ms=[];
+      for(let g=0;g<play.length;g+=4){
+        const [p,q,u,v]=play.slice(g,g+4);
+        const opts=[[[p,q],[u,v]],[[p,u],[q,v]],[[p,v],[q,u]]];
+        let bo=null,boc=Infinity;
+        for(const [a,b] of opts){
+          const c=(P[a[0]][a[1]]+P[b[0]][b[1]])*1000+(O[a[0]][b[0]]+O[a[0]][b[1]]+O[a[1]][b[0]]+O[a[1]][b[1]])*10;
+          if(c<boc){boc=c;bo=[a,b]}
+        }
+        cost+=boc;ms.push(bo);
+      }
+      if(cost<bc){bc=cost;best=ms.map(m=>m.map(x=>[...x]))}
+    }
+    best.forEach(([a,b])=>{P[a[0]][a[1]]++;P[a[1]][a[0]]++;P[b[0]][b[1]]++;P[b[1]][b[0]]++;
+      a.forEach(x=>b.forEach(y=>{O[x][y]++;O[y][x]++}))});
+    rest.forEach(i=>R[i]++);
+    out.push({rest,matches:best.map(([a,b],ci)=>({c:ci+1,a,b,s:null}))});
+  }
+  return out;
+}
+function aNew(event,players,ppm,se,courts,rounds){
+  return {v:1,event,players,ppm,se,courts,rounds:genSchedule(players.length,courts,rounds),cur:0,live:null,created:Date.now(),sample:false};
+}
+function aSample(){
+  const a=aNew('Ukázka · Středeční americano',['Jana','Petr','Lucie','Tomáš','Eva','Marek','Klára','Ondřej'],24,4,2,7);
+  a.sample=true;
+  const fill=[[14,10],[9,15],[12,12],[17,7]];let k=0;
+  for(let r=0;r<2;r++)a.rounds[r].matches.forEach(m=>m.s=fill[k++%4]);
+  a.cur=2;return a;
+}
+function aStandings(){
+  const st=A.players.map((_,i)=>({i,pts:0,pl:0,w:0,d:0,l:0,diff:0}));
+  A.rounds.forEach(r=>r.matches.forEach(m=>{if(!m.s)return;
+    [[m.a,m.s[0],m.s[1]],[m.b,m.s[1],m.s[0]]].forEach(([tm,f,g])=>tm.forEach(i=>{const p=st[i];
+      p.pts+=f;p.pl++;p.diff+=f-g;if(f>g)p.w++;else if(f===g)p.d++;else p.l++}))}));
+  return st.sort((x,y)=>y.pts-x.pts||y.w-x.w||y.diff-x.diff||A.players[x.i].localeCompare(A.players[y.i],'cs'));
+}
+const pn=i=>esc(A.players[i]);
+const roundDone=r=>A.rounds[r].matches.every(m=>m.s);
+function aRender(){
+  if(!A)return;
+  $('aEvt').textContent=A.event||'Bez názvu';
+  $('aChip').textContent=`${A.players.length} hráčů · ${A.ppm} bodů · ${A.rounds[0].matches.length} ${A.rounds[0].matches.length===1?'kurt':'kurty'}`;
+  $('aSample').hidden=!A.sample;
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===ATAB));
+  const c=$('amc');
+  if(ATAB==='round'){
+    const r=A.rounds[AVIEWR],last=AVIEWR===A.rounds.length-1;
+    let h=`<div class="rnav"><button class="btn" id="rPrev" ${AVIEWR?'':'disabled style="opacity:.4"'}>‹</button><h2>Kolo ${AVIEWR+1} / ${A.rounds.length}</h2><button class="btn" id="rNext" ${last?'disabled style="opacity:.4"':''}>›</button>
+      ${r.rest.length?`<span class="rest">Volno: ${r.rest.map(pn).join(', ')}</span>`:''}<div class="spacer"></div>
+      ${AVIEWR!==A.cur?`<button class="btn" id="rCur">Aktuální kolo (${A.cur+1})</button>`:''}
+      ${roundDone(AVIEWR)&&!last&&AVIEWR===A.cur?`<button class="btn primary" id="rAdv">Další kolo ›</button>`:''}</div><div class="courts">`;
+    r.matches.forEach((m,mi)=>{
+      const live=A.live&&A.live.r===AVIEWR&&A.live.m===mi;
+      h+=`<div class="cc${m.s?' done':''}"><div class="ch"><span>Kurt ${m.c}</span>${m.s?'<span class="ok">✓ zapsáno</span>':live?`<span>Hraje se · ${A.live.pts.join(':')}</span>`:''}</div>
+        <div class="pair pa"><div class="nm"><span>${pn(m.a[0])}</span><span>${pn(m.a[1])}</span></div><input id="sc-${AVIEWR}-${mi}-0" inputmode="numeric" data-r="${AVIEWR}" data-m="${mi}" data-t="0" value="${m.s?m.s[0]:''}" aria-label="Body týmu 1"></div>
+        <div class="vs">proti</div>
+        <div class="pair pb"><div class="nm"><span>${pn(m.b[0])}</span><span>${pn(m.b[1])}</span></div><input id="sc-${AVIEWR}-${mi}-1" inputmode="numeric" data-r="${AVIEWR}" data-m="${mi}" data-t="1" value="${m.s?m.s[1]:''}" aria-label="Body týmu 2"></div>
+        <button class="btn" data-live="${mi}">${live?'Pokračovat v zápisu ›':'Zapisovat po bodech ›'}</button></div>`;
+    });
+    c.innerHTML=h+'</div>';
+    $('rPrev').onclick=()=>{AVIEWR=Math.max(0,AVIEWR-1);aRender()};
+    $('rNext').onclick=()=>{AVIEWR=Math.min(A.rounds.length-1,AVIEWR+1);aRender()};
+    $('rCur')&&($('rCur').onclick=()=>{AVIEWR=A.cur;aRender()});
+    $('rAdv')&&($('rAdv').onclick=()=>{A.cur++;AVIEWR=A.cur;aSave();aRender()});
+    c.querySelectorAll('input[data-t]').forEach(inp=>inp.onchange=()=>{
+      const r=+inp.dataset.r,mi=+inp.dataset.m,t=+inp.dataset.t,m=A.rounds[r].matches[mi];
+      const v=parseInt(inp.value,10);
+      if(inp.value.trim()===''){m.s=null}
+      else if(isNaN(v)||v<0||v>A.ppm){inp.value=m.s?m.s[t]:'';return}
+      else{m.s=t===0?[v,A.ppm-v]:[A.ppm-v,v]}
+      A.sample=false;
+      if(A.live&&A.live.r===r&&A.live.m===mi)A.live=null;
+      aSave();aRender();
+    });
+    c.querySelectorAll('[data-live]').forEach(b=>b.onclick=()=>{
+      const mi=+b.dataset.live;
+      if(!(A.live&&A.live.r===AVIEWR&&A.live.m===mi)){
+        const m=A.rounds[AVIEWR].matches[mi];
+        A.live={r:AVIEWR,m:mi,pts:m.s?[...m.s]:[0,0],hist:[],off:0,start:Date.now()};
+      }
+      aSave();go('amscore');
+    });
+  }else if(ATAB==='rank'){
+    const st=aStandings(),done=A.rounds.reduce((k,r)=>k+r.matches.filter(m=>m.s).length,0),tot=A.rounds.reduce((k,r)=>k+r.matches.length,0);
+    c.innerHTML=`<p class="muted" style="margin:0 0 10px">Odehráno ${done} z ${tot} zápasů. Pořadí: body, pak výhry, pak rozdíl skóre.</p>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>#</th><th>Hráč</th><th>Body</th><th>Z</th><th>V</th><th>R</th><th>P</th><th>+/−</th></tr></thead><tbody>${
+      st.map((p,k)=>`<tr class="${k<3&&p.pl?'podium':''}"><td class="rk">${k+1}</td><td>${pn(p.i)}</td><td class="pt">${p.pts}</td><td>${p.pl}</td><td>${p.w}</td><td>${p.d}</td><td>${p.l}</td><td>${p.diff>0?'+':''}${p.diff}</td></tr>`).join('')}</tbody></table></div>`;
+  }else{
+    c.innerHTML=`<div class="sched">${A.rounds.map((r,ri)=>`<div class="srow${ri===A.cur?' cur':''}"><b>Kolo ${ri+1}</b><ul>${
+      r.matches.map(m=>`<li><span>K${m.c}</span> ${pn(m.a[0])} + ${pn(m.a[1])} <span>vs</span> ${pn(m.b[0])} + ${pn(m.b[1])} ${m.s?`<span class="sc">${m.s[0]}:${m.s[1]}</span>`:''}</li>`).join('')}${
+      r.rest.length?`<li><span>Volno: ${r.rest.map(pn).join(', ')}</span></li>`:''}</ul></div>`).join('')}</div>`;
+  }
+  aScoreRender();aBoardRender();
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{ATAB=t.dataset.tab;aRender()});
+
+/* americano scorer */
+function aMatch(){return A.live?A.rounds[A.live.r].matches[A.live.m]:null}
+function aPoint(t){
+  const L=A.live;if(!L)return;const m=aMatch();
+  if(L.pts[0]+L.pts[1]>=A.ppm)return;
+  L.hist.push([...L.pts]);L.pts[t]++;
+  if(L.pts[0]+L.pts[1]===A.ppm)m.s=[...L.pts];
+  A.sample=false;aSave();aRender();
+  const el=$('q'+t);el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),180);
+}
+function aUndo(){const L=A.live;if(!L||!L.hist.length)return;L.pts=L.hist.pop();aMatch().s=null;aSave();aRender()}
+function aScoreRender(){
+  if(VIEW!=='amscore')return;
+  const L=A.live;if(!L){go('amer');return}
+  const m=aMatch(),sum=L.pts[0]+L.pts[1],done=sum>=A.ppm;
+  const order=[m.a[0],m.b[0],m.a[1],m.b[1]],srv=order[(Math.floor(sum/A.se)+L.off)%4];
+  $('asTitle').firstChild.textContent=`Kurt ${m.c}`;
+  $('asSub').textContent=`Kolo ${L.r+1} · do ${A.ppm} bodů`;
+  [0,1].forEach(t=>{
+    const tm=t?m.b:m.a;
+    $('q'+t).innerHTML=`<span class="hint">bod</span><div class="players">${tm.map(i=>{const on=!done&&i===srv;
+      return `<div class="pl${on?' srv':''}">${on?'<span class="ball"></span>':''}${pn(i)}${on?`<span class="srvside">podání ${sum%2===0?'zprava':'zleva'}</span>`:''}</div>`}).join('')}</div>
+      <div class="pts">${L.pts[t]}</div><div class="foot"><div class="games"><small>Bodů v turnaji</small>${aStandings().filter(p=>tm.includes(p.i)).map(p=>p.pts).join(' · ')}</div></div>`;
+  });
+  const left=A.ppm-sum,next=done?0:A.se-(sum%A.se);
+  $('asStatus').innerHTML=done?`<span class="msg" style="color:var(--ok)">Konec zápasu · ${L.pts[0]}:${L.pts[1]}</span>`
+    :`<span class="msg">Zbývá ${left} ${left===1?'bod':left<5?'body':'bodů'}</span><span class="chip">Změna podání za ${next}</span>`;
+  const P=A.players;$('asLog').textContent=`${P[m.a[0]]} + ${P[m.a[1]]}  vs  ${P[m.b[0]]} + ${P[m.b[1]]}`;
+  $('asDone').hidden=!done;
+  $('asUndo').style.opacity=L.hist.length?1:.4;
+}
+$('q0').onclick=()=>aPoint(0);$('q1').onclick=()=>aPoint(1);
+$('asUndo').onclick=aUndo;
+$('asRot').onclick=()=>{if(A.live){A.live.off=(A.live.off+1)%4;aSave();aRender()}};
+$('asBack').onclick=()=>go('amer');
+$('asDone').onclick=()=>{A.live=null;aSave();go('amer')};
+$('asBoard').onclick=()=>board(true);$('aBoardBtn').onclick=()=>board(true);$('abExit').onclick=()=>board(false);
+
+/* americano board */
+function aBoardRender(){
+  if(!document.body.classList.contains('board'))return;
+  const st=aStandings(),r=A.rounds[A.cur];
+  $('abEvt').textContent=A.event||'Americano';
+  $('abRound').textContent=`Kolo ${A.cur+1} / ${A.rounds.length}`;
+  const max=st.length>12?12:st.length;
+  $('abRank').innerHTML=st.slice(0,max).map((p,k)=>`<div class="alr${k<3&&p.pl?' top':''}"><span class="r">${k+1}</span><span class="n">${pn(p.i)}</span><span class="p">${p.pts}</span></div>`).join('');
+  $('abMatches').innerHTML=`<h3>Právě se hraje</h3>`+r.matches.map((m,mi)=>{
+    const live=A.live&&A.live.r===A.cur&&A.live.m===mi?A.live.pts:null,s=m.s||live;
+    return `<div class="amm"><span class="c">Kurt ${m.c}${m.s?' · konec':live?' · živě':''}</span><span class="t a">${pn(m.a[0])} + ${pn(m.a[1])}</span><span class="s a">${s?s[0]:'–'}</span><span class="t b">${pn(m.b[0])} + ${pn(m.b[1])}</span><span class="s b">${s?s[1]:'–'}</span></div>`}).join('')
+    +(r.rest.length?`<h3 style="font-size:clamp(16px,1.8vw,28px)">Volno: ${r.rest.map(pn).join(', ')}</h3>`:'');
+  $('abMsg').textContent=A.rounds.every((_,i)=>roundDone(i))?`Vítěz: ${A.players[st[0].i]}`:'';
+}
+
+/* americano setup */
+function aInfo(){
+  const n=$('aFPl').value.split('\n').map(s=>s.trim()).filter(Boolean).length;
+  const maxc=Math.max(1,Math.floor(n/4));
+  $('aFInfo').textContent=n<4?`Zadáno ${n} hráčů · potřeba aspoň 4`:
+    `Zadáno ${n} hráčů · max. ${maxc} ${maxc===1?'kurt':'kurty'}`+(n%4?` · v každém kole ${n-maxc*4} ${n-maxc*4===1?'hráč má':'hráči mají'} volno (střídají se)`:'')+` · každý s každým: ${n%4?n:n-1} kol`;
+  return {n,maxc};
+}
+$('aFPl').addEventListener('input',()=>{const {n,maxc}=aInfo();$('aFCourts').value=maxc;$('aFRounds').value=n<4?'':(n%4?n:n-1)});
+$('aNewBtn').onclick=()=>{
+  $('aFEvt').value='';$('aFPl').value=A.sample?'':A.players.join('\n');
+  $('aFPl').dispatchEvent(new Event('input'));$('aSetup').hidden=false;$('aFEvt').focus();
+};
+$('aCancel').onclick=()=>$('aSetup').hidden=true;
+$('aForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const pl=$('aFPl').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(pl.length<4){$('aFInfo').textContent='Americano potřebuje aspoň 4 hráče.';return}
+  const f=new FormData(e.target),maxc=Math.floor(pl.length/4);
+  const courts=Math.min(maxc,Math.max(1,parseInt($('aFCourts').value,10)||maxc));
+  const rounds=Math.min(40,Math.max(1,parseInt($('aFRounds').value,10)||(pl.length%4?pl.length:pl.length-1)));
+  A=aNew($('aFEvt').value.trim(),pl,+f.get('ppm'),+f.get('se'),courts,rounds);AVIEWR=0;ATAB='round';
+  aSave();$('aSetup').hidden=true;aRender();homeRender();wake();
+});
+let lock=null;async function wake(){try{lock=await navigator.wakeLock?.request('screen')}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake()});
+
+load();aLoad();
+/* Americano je zatím skryté – přepnutím na true se vrátí úvodní obrazovka s volbou režimu */
+const FEATURE_AMER=false;
+let v0='home';try{v0=localStorage.getItem(VKEY)||'home'}catch(e){}
+if(v0==='amscore'&&!A.live)v0='amer';
+if(!FEATURE_AMER){v0='match';document.querySelectorAll('[data-home]').forEach(b=>b.hidden=true)}
+if(location.hash==='#tabule'){v0='match';document.body.classList.add('board')}
+if(FEATURE_AMER&&location.hash==='#tabule-americano'){v0='amer';document.body.classList.add('board')}
+go(v0);wake();
+setInterval(()=>{tick();if(Date.now()-S.swapAt<10000)render()},1000);
+})();
+</script>
+</body>
+</html>
