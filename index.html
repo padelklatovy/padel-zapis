@@ -64,7 +64,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .ball{width:14px;height:14px;border-radius:50%;background:#D9EE3A;box-shadow:inset -2px -2px 0 rgba(0,0,0,.18);flex:none}
 .srvside{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--b);margin-left:4px}
 .team.A .srvside{color:var(--a)}
-.pts{align-self:center;justify-self:center;font-family:var(--disp);font-weight:800;line-height:.85;font-size:clamp(96px,17vw,230px);font-variant-numeric:tabular-nums}
+.pts{align-self:center;justify-self:center;font-family:var(--disp);font-weight:800;line-height:.85;font-size:clamp(64px,min(17vw,30vh),230px);font-variant-numeric:tabular-nums}
+.team,.undo,.btn{touch-action:manipulation}
+.menu-only{display:none}
+.menu-list{display:grid;gap:10px}
+.menu-list .btn{min-height:56px;font-size:17px;justify-content:center}
 .team.A .pts{color:var(--a)}.team.B .pts{color:var(--b)}
 .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .games{font-family:var(--disp);font-weight:700;font-size:clamp(40px,5.5vw,64px);line-height:1;font-variant-numeric:tabular-nums}
@@ -209,11 +213,30 @@ body.board[data-view=amer] #boardv,body.board[data-view=amscore] #boardv{display
   .abody{grid-template-columns:1fr}
 }
 @media (max-width:760px), (orientation:portrait) and (max-width:900px){
-  body{overflow:auto}
-  .app{height:auto;min-height:100%}
-  .court{grid-template-columns:1fr}
-  .team{min-height:34vh}
+  .court{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .team{min-height:0;padding:14px 16px}
+  .pts{font-size:min(36vw,17vh)}
   .grid2{grid-template-columns:1fr}
+  #amScore,#amer{height:auto;min-height:100%}
+}
+/* telefon: kompaktní hlavička s menu */
+@media (max-width:760px), (max-height:520px){
+  .app{gap:8px;padding-block:8px}
+  .top .hide-sm{display:none}
+  .menu-only{display:inline-flex}
+  .brand{font-size:17px}
+  .clock{font-size:19px}
+  .status{min-height:28px}
+  .msg{font-size:18px}.tag{font-size:15px}.swap{font-size:16px;padding:4px 10px}
+  .games{font-size:clamp(28px,5vh,48px)}
+  .setsmini span{font-size:18px;min-width:28px}
+  .undo{min-height:48px}
+  .hint{top:12px;right:14px}
+}
+@media (max-height:520px){
+  .team{padding:10px 14px}
+  .pl{font-size:15px}
+  .pts{font-size:min(16vw,34vh)}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -238,14 +261,15 @@ body{margin:0}
   <header class="top">
     <button class="home-btn" data-home title="Úvod">⌂</button>
     <div class="brand">Padel Zápis<small id="evt">—</small></div>
-    <span class="chip" id="modeChip">Star point</span>
+    <span class="chip hide-sm" id="modeChip">Star point</span>
     <span class="chip sample" id="sampleChip" hidden>Ukázkový zápas</span>
     <div class="spacer"></div>
     <span class="clock" id="clock">0:00</span>
-    <button class="btn" id="swapBtn" title="Prohodit strany na displeji">⇄ Strany</button>
-    <button class="btn" id="boardBtn" title="Zobrazit tabuli pro diváky (B)">Tabule</button>
-    <button class="btn" data-export="match">Export</button>
-    <button class="btn primary" id="newBtn">Nový zápas</button>
+    <button class="btn hide-sm" id="swapBtn" title="Prohodit strany na displeji">⇄ Strany</button>
+    <button class="btn hide-sm" id="boardBtn" title="Zobrazit tabuli pro diváky (B)">Tabule</button>
+    <button class="btn hide-sm" data-export="match">Export</button>
+    <button class="btn primary hide-sm" id="newBtn">Nový zápas</button>
+    <button class="btn menu-only" id="menuBtn" aria-label="Menu">☰ Menu</button>
   </header>
   <div class="status" id="status"></div>
   <main class="court" id="court">
@@ -341,6 +365,19 @@ body{margin:0}
     <p class="muted" style="margin:0">Strukturovaný záznam ve formátu JSON. Připravený pro budoucí import do systému federace, zatím jde zkopírovat a poslat nebo uložit.</p>
     <pre class="copy" id="expTxt" style="max-height:340px"></pre>
     <div class="actions"><button class="btn" id="expClose">Zavřít</button><button class="btn primary" id="expCopy">Kopírovat JSON</button></div>
+  </div>
+</div>
+
+<div class="ov" id="menuOv" hidden>
+  <div class="card">
+    <h2>Menu</h2>
+    <div class="menu-list">
+      <button class="btn primary" data-m="newBtn">Nový zápas</button>
+      <button class="btn" data-m="swapBtn">⇄ Prohodit strany</button>
+      <button class="btn" data-m="boardBtn">Tabule pro diváky</button>
+      <button class="btn" data-m="exp">Export dat</button>
+      <button class="btn" data-m="close">Zavřít</button>
+    </div>
   </div>
 </div>
 
@@ -585,6 +622,12 @@ $('setupForm').addEventListener('submit',e=>{
   S=fresh(cfg,+f.get('left'));H=[];save();$('setup').hidden=true;render();wake();
 });
 $('cancelSetup').onclick=()=>$('setup').hidden=true;
+$('menuBtn').onclick=()=>$('menuOv').hidden=false;
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
+  $('menuOv').hidden=true;const m=b.dataset.m;
+  if(m==='exp')document.querySelector('[data-export="match"]').click();
+  else if(m!=='close')$(m).click();
+});
 
 /* ---------- wiring ---------- */
 $('p0').onclick=()=>point(+$('p0').dataset.team);
