@@ -29,7 +29,7 @@ html,body{height:100%}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;padding-inline:16px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--a);outline-offset:2px}
-.app{height:100%;display:grid;grid-template-rows:auto auto 1fr auto;gap:12px;padding-block:12px}
+.app{height:100%;display:grid;grid-template-rows:auto auto auto 1fr auto;gap:12px;padding-block:12px}
 
 /* header */
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -49,6 +49,27 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .msg.hot{color:var(--hot)}
 .tag{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:6px}
 .tag.a{background:var(--a);color:#061220}.tag.b{background:var(--b);color:#1B1600}
+.tmr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border-radius:12px;padding:6px 8px 6px 14px;margin-left:auto}
+.tmr .tl{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tmr b{font-family:var(--disp);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ok);min-width:3.2ch;text-align:center}
+.tmr.warn b{color:var(--b)}
+.tmr.over{background:var(--hot);animation:pulse 1s ease-in-out infinite}
+.tmr.over .tl,.tmr.over b{color:#1A0603}
+.tmr .btn{min-height:40px;padding:0 12px;font-size:14px}
+.bmsg.tm{color:var(--ok)}
+.call{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:12px;padding:8px 8px 8px 14px;min-width:0}
+.call .cl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--b);flex:none}
+.call .ct{flex:1;min-width:0;display:grid;gap:2px}
+.call q{font-size:clamp(17px,2.2vw,24px);font-weight:600;line-height:1.25;quotes:"„" "“"}
+.call small{font-size:13px;color:var(--muted);line-height:1.35}
+.call .btn{min-height:40px;font-size:14px;flex:none}
+#tahakOv .card{width:min(900px,100%)}
+#tahakBody{display:grid;gap:18px;-webkit-user-select:text;user-select:text}
+#tahakBody h3{margin:0 0 6px;font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.04em;color:var(--b)}
+#tahakBody dl{margin:0;display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:6px 14px}
+#tahakBody dt{font-weight:600;font-size:14px;color:var(--muted)}
+#tahakBody dd{margin:0;font-size:15px;line-height:1.4}
+@media (max-width:600px){#tahakBody dl{grid-template-columns:1fr}#tahakBody dd{margin-bottom:6px}}
 .swap{margin-left:auto;font-family:var(--disp);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.04em;background:var(--hot);color:#1A0603;padding:6px 14px;border-radius:8px;animation:pulse 1s ease-in-out 4}
 @keyframes pulse{50%{opacity:.55}}
 
@@ -231,6 +252,7 @@ body.board[data-view=amer] #boardv,body.board[data-view=amscore] #boardv{display
   .games{font-size:clamp(28px,5vh,48px)}
   .setsmini span{font-size:18px;min-width:28px}
   .undo{min-height:48px}
+  .call{padding:6px 6px 6px 10px;gap:8px}.call small{display:none}.call q{font-size:16px}.call .btn{min-height:36px;padding:0 10px}
   .hint{top:12px;right:14px}
 }
 @media (max-height:520px){
@@ -272,6 +294,7 @@ body{margin:0}
     <button class="btn menu-only" id="menuBtn" aria-label="Menu">☰ Menu</button>
   </header>
   <div class="status" id="status"></div>
+  <div class="call" id="call" hidden></div>
   <main class="court" id="court">
     <button class="team" id="p0" data-slot="0"></button>
     <button class="team" id="p1" data-slot="1"></button>
@@ -374,10 +397,21 @@ body{margin:0}
     <div class="menu-list">
       <button class="btn primary" data-m="newBtn">Nový zápas</button>
       <button class="btn" data-m="swapBtn">⇄ Prohodit strany</button>
+      <button class="btn" data-m="calls" id="mCalls">Nápověda hlášení: zapnuto</button>
+      <button class="btn" data-m="tahak">Tahák hlášení</button>
       <button class="btn" data-m="boardBtn">Tabule pro diváky</button>
       <button class="btn" data-m="exp">Export dat</button>
       <button class="btn" data-m="close">Zavřít</button>
     </div>
+  </div>
+</div>
+
+<div class="ov" id="tahakOv" hidden>
+  <div class="card">
+    <h2>Tahák hlášení</h2>
+    <p class="muted" style="margin:0">Podle Manuálu rozhodčího (finále extraligy 2026) a FIP Duties and Procedures. České věty jsou pracovní překlady. Jména jsou z aktuálního zápasu.</p>
+    <div id="tahakBody"></div>
+    <div class="actions"><button class="btn primary" id="tahakClose">Zavřít</button></div>
   </div>
 </div>
 
@@ -405,6 +439,21 @@ body{margin:0}
       <fieldset><legend>Podává první</legend><select id="fS1"></select></fieldset>
       <fieldset><legend>První podání soupeře</legend><select id="fR1"></select></fieldset>
     </div>
+    <div class="grid2">
+      <fieldset><legend>Rozcvička</legend><div class="seg">
+        <label><input type="radio" name="warm" value="0"><span>Bez</span></label>
+        <label><input type="radio" name="warm" value="180" checked><span>3 min</span></label>
+        <label><input type="radio" name="warm" value="300"><span>5 min</span></label>
+      </div></fieldset>
+      <fieldset><legend>Pauzy · výměna stran 90 s, mezi sety 120 s</legend><div class="seg">
+        <label><input type="radio" name="brk" value="1" checked><span>Odpočítávat</span></label>
+        <label><input type="radio" name="brk" value="0"><span>Vypnuto</span></label>
+      </div></fieldset>
+    </div>
+    <fieldset><legend>Nápověda hlášení rozhodčího</legend><div class="seg">
+      <label><input type="radio" name="calls" value="1" checked><span>Zobrazovat<small>co právě nahlas říct</small></span></label>
+      <label><input type="radio" name="calls" value="0"><span>Skrýt</span></label>
+    </div></fieldset>
     <fieldset><legend>Vlevo z pohledu rozhodčího</legend><div class="seg">
       <label><input type="radio" name="left" value="0" checked><span>Tým A</span></label>
       <label><input type="radio" name="left" value="1"><span>Tým B</span></label>
@@ -518,9 +567,37 @@ const setStr=x=>x.sup?`[${x.tb[0]}:${x.tb[1]}]`:`${x.g[0]}:${x.g[1]}`+(x.tb?`(${
 const fmtDur=ms=>{const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h}:${String(m%60).padStart(2,'0')} h`:`${m} min`};
 
 /* ---------- actions ---------- */
+const BREAK={change:90,set:120};
+const TLABEL={warm:'Rozcvička',change:'Pauza · výměna stran',set:'Pauza mezi sety'};
 function point(t){
   if(S.done)return;
-  H.push(S);S=applyPoint(S,t,true);S.sample=false;save();render();flash(t);
+  unlockAudio();
+  const before=S;
+  H.push(S);S=applyPoint(S,t,true);S.sample=false;S.timer=null;
+  if(!S.done&&S.cfg.breaks!==false){
+    if(S.sets.length>before.sets.length){startTimer('set');S.timer.swap=S.left!==before.left}
+    /* bez pauzy po 1. gamu setu a při výměnách v tie-breaku */
+    else if(S.left!==before.left&&!before.tb&&(S.games[0]+S.games[1])!==1)startTimer('change');
+  }
+  save();render();flash(t);
+}
+function startTimer(kind,dur){dur=dur||BREAK[kind];S.timer={kind,dur,end:Date.now()+dur*1000,rang:false}}
+function timerLeft(){const T=S.timer;if(!T)return null;return T.end?Math.ceil((T.end-Date.now())/1000):T.dur}
+const fmtT=sec=>{const a=Math.abs(sec);return (sec<0?'+':'')+Math.floor(a/60)+':'+String(a%60).padStart(2,'0')};
+let actx=null;
+function unlockAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
+function beep(){
+  try{navigator.vibrate&&navigator.vibrate([400,150,400,150,400])}catch(e){}
+  try{if(!actx)return;const t0=actx.currentTime;
+    [0,.35,.7].forEach(d=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);
+      g.gain.setValueAtTime(.0001,t0+d);g.gain.exponentialRampToValueAtTime(.4,t0+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+d+.25);o.start(t0+d);o.stop(t0+d+.3)})}catch(e){}
+}
+function timerHtml(){
+  const T=S.timer;if(!T||S.done)return '';
+  const left=timerLeft(),over=T.end&&left<=0,warn=T.end&&left>0&&left<=15;
+  const btns=!T.end?'<button class="btn primary" data-t="go">Spustit</button><button class="btn" data-t="skip">Přeskočit</button>'
+    :'<button class="btn" data-t="skip">'+(over?'Hrajeme':'Ukončit')+'</button>';
+  return `<div class="tmr${over?' over':warn?' warn':''}" id="tmr"><span class="tl">${over?(T.kind==='warm'?'Konec rozcvičky':'Čas vypršel'):TLABEL[T.kind]+(T.swap?' · výměna stran':'')}</span><b id="tmrTime">${fmtT(over?-left:left).replace('+','')}</b>${btns}</div>`;
 }
 function undo(){if(!H.length)return;S=H.pop();save();render()}
 function flash(t){const el=$('p'+(S.left===t?0:1));el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),180)}
@@ -546,12 +623,14 @@ function render(){
   const stt=status(s);
   let h=`<span class="msg${stt.hot?' hot':''}">${esc(stt.msg)}</span>`;
   stt.tags.forEach(([t,l])=>h+=`<span class="tag ${t?'b':'a'}">${l} ${t?'B':'A'}</span>`);
-  if(Date.now()-s.swapAt<9000)h+=`<span class="swap">⇄ Výměna stran</span>`;
+  if(Date.now()-s.swapAt<9000&&!s.timer)h+=`<span class="swap">⇄ Výměna stran</span>`;
+  h+=timerHtml();
   $('status').innerHTML=h;
   const done=s.sets.map(setStr).join('  ');
   $('log').textContent=(done?'Sety: '+done+'  ·  ':'')+'Aktuální set: '+s.games.join(':')+(H.length?'  ·  zaznamenáno bodů: '+s.log.length:'');
   $('undoBtn').disabled=!H.length;$('undoBtn').style.opacity=H.length?1:.4;
   renderBoard(stt,srv);
+  renderCall();
   $('endOv').hidden=!s.done||document.body.classList.contains('board')||VIEW!=='match';
   if(s.done)renderEnd();
   tick();
@@ -573,7 +652,10 @@ function renderBoard(stt,srv){
   let m=stt.msg&&(stt.hot||s.tb||s.done)?stt.msg:'';
   if(stt.tags.length)m=stt.tags.map(([t,l])=>l+' '+(t?'B':'A')).join(' · ');
   if(Date.now()-s.swapAt<9000&&!s.done)m=m?m+' · Výměna stran':'Výměna stran';
-  $('bMsg').textContent=m.replace(' · přijímající volí stranu','');
+  m=m.replace(' · přijímající volí stranu','');
+  const T=s.timer;
+  if(T&&!s.done){const l=timerLeft();m=(T.kind==='warm'?'Rozcvička ':'Pauza ')+(T.end&&l<=0?'· čas!':fmtT(l));}
+  $('bMsg').textContent=m;$('bMsg').classList.toggle('tm',!!(T&&!s.done));
 }
 function renderEnd(){
   const s=S,w=s.winner,res=s.sets.map(x=>{const v=x.sup?x.tb:x.g;return w===0?`${v[0]}:${v[1]}`:`${v[1]}:${v[0]}`}).join('  ');
@@ -592,11 +674,21 @@ function renderEnd(){
   ].join('\n');
 }
 function tick(){const t=fmtClock((S.end||Date.now())-S.start);$('clock').textContent=t;$('bClock').textContent=t}
+function tickTimer(){
+  const T=S.timer;if(!T||!T.end)return;
+  const l=timerLeft();
+  if(l<=0&&!T.rang){T.rang=true;save();beep();render();return}
+  const box=$('tmr');
+  if(!box||(l<=15&&!box.classList.contains('warn')&&l>0)){render();return}
+  const tt=$('tmrTime');if(tt)tt.textContent=fmtT(l<=0?-l:l).replace('+','');
+  $('bMsg').textContent=(T.kind==='warm'?'Rozcvička ':'Pauza ')+(l<=0?'· čas!':fmtT(l));
+}
 const fmtClock=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0')};
 const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---------- setup ---------- */
 function openSetup(){
+  try{document.querySelector(`input[name=calls][value="${CALLS?1:0}"]`).checked=true}catch(e){}
   const c=S.sample?null:S.cfg;
   $('fEvt').value=c?c.event:'';
   ['fA1','fA2','fB1','fB2'].forEach((id,i)=>$(id).value=c?c.names[i>>1][i&1]:'');
@@ -618,14 +710,22 @@ $('fS1').addEventListener('change',fillRecv);
 $('setupForm').addEventListener('submit',e=>{
   e.preventDefault();
   const f=new FormData(e.target),[st,sp]=$('fS1').value.split('-').map(Number),[rt,rp]=$('fR1').value.split('-').map(Number);
-  const cfg={event:$('fEvt').value.trim(),names:names(),format:f.get('fmt'),deuce:f.get('deuce'),rot:[[st,sp],[rt,rp],[st,1-sp],[rt,1-rp]]};
-  S=fresh(cfg,+f.get('left'));H=[];save();$('setup').hidden=true;render();wake();
+  const cfg={event:$('fEvt').value.trim(),names:names(),format:f.get('fmt'),deuce:f.get('deuce'),rot:[[st,sp],[rt,rp],[st,1-sp],[rt,1-rp]],warm:+f.get('warm'),breaks:f.get('brk')==='1'};
+  CALLS=f.get('calls')==='1';try{localStorage.setItem(CKEY,CALLS?'1':'0')}catch(e){}
+  S=fresh(cfg,+f.get('left'));H=[];
+  if(cfg.warm>0)S.timer={kind:'warm',dur:cfg.warm,end:null};
+  save();$('setup').hidden=true;render();wake();
 });
 $('cancelSetup').onclick=()=>$('setup').hidden=true;
-$('menuBtn').onclick=()=>$('menuOv').hidden=false;
+$('tahakClose').onclick=()=>$('tahakOv').hidden=true;
+$('status').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b||!S.timer)return;unlockAudio();
+  if(b.dataset.t==='go'){S.timer.end=Date.now()+S.timer.dur*1000;S.timer.rang=false}else S.timer=null;save();render()});
+$('menuBtn').onclick=()=>{$('mCalls').textContent='Nápověda hlášení: '+(CALLS?'zapnuto':'vypnuto');$('menuOv').hidden=false};
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
   $('menuOv').hidden=true;const m=b.dataset.m;
   if(m==='exp')document.querySelector('[data-export="match"]').click();
+  else if(m==='calls')setCalls(!CALLS);
+  else if(m==='tahak')openTahak();
   else if(m!=='close')$(m).click();
 });
 
@@ -663,6 +763,177 @@ document.addEventListener('keydown',e=>{
 });
 /* second window on same device (e.g. laptop + projector) stays in sync */
 window.addEventListener('storage',e=>{if(e.key===KEY){load();render()} if(e.key===AKEY){aLoad();aRender()}});
+
+/* =================== HLÁŠENÍ ROZHODČÍHO =================== */
+const CKEY='padelZapis.calls';
+let CALLS=true;try{CALLS=localStorage.getItem(CKEY)!=='0'}catch(e){}
+const NUM=['nula','jedna','dva','tři','čtyři','pět','šest','sedm','osm','devět','deset','jedenáct','dvanáct','třináct','čtrnáct','patnáct','šestnáct','sedmnáct','osmnáct','devatenáct','dvacet'];
+const num=n=>n<=20?NUM[n]:(n<30?'dvacet '+NUM[n-20]:String(n));
+const fem=n=>n===2?'dvě':num(n);
+const acc=n=>n===0?'nulu':n===1?'jednu':fem(n);
+const hry=n=>n===1?'hra':(n>=2&&n<=4)?'hry':'her';
+const cap=x=>x.charAt(0).toUpperCase()+x.slice(1);
+const PW=['nula','patnáct','třicet','čtyřicet'];
+const tn=(s,t)=>s.cfg.names[t].join(', ');
+const pname=(s,idx)=>{const [t,p]=s.cfg.rot[idx];return s.cfg.names[t][p]};
+function setName(s,i){
+  if(s.cfg.format!=='1'&&i===2)return 'rozhodující set';
+  return ['první','druhý','třetí'][i]+' set';
+}
+function gamesPhrase(s,g,i){
+  const [a,b]=g,sn=setName(s,i);
+  if(a+b===1)return `První hra, ${sn}.`;
+  if(a===b)return `${cap(fem(a))} ${hry(a)} obě, ${sn}.`;
+  const L=a>b?0:1,x=g[L],y=g[1-L];
+  return `${tn(s,L)} vedou ${fem(x)} ${hry(x)} na ${acc(y)}, ${sn}.`;
+}
+function pointPhrase(s){
+  const [a,b]=s.pts;
+  if(s.tb){
+    if(a===b)return `${cap(num(a))} obě.`;
+    const L=a>b?0:1;return `${cap(num(s.pts[L]))} ${num(s.pts[1-L])}, ${tn(s,L)}.`;
+  }
+  const sp=s.cfg.rot[curServer(s)][0],x=s.pts[sp],y=s.pts[1-sp],d=s.cfg.deuce;
+  if(x>=3&&y>=3){
+    const lo=Math.min(x,y);
+    if(x===y){
+      if(d==='golden')return 'Shoda. Zlatý bod.';
+      if(d==='star'){const k=lo-2;return k>=3?'Shoda. Hvězdný bod.':k===2?'Druhá shoda.':'Shoda.'}
+      return 'Shoda.';
+    }
+    const L=a>b?0:1,k=lo-2;
+    return (d==='star'&&k>=2?'Druhá výhoda ':'Výhoda ')+tn(s,L)+'.';
+  }
+  if(x===y)return `${cap(PW[x])} obě.`;
+  return `${cap(PW[x])} ${PW[y]}.`;
+}
+function decidingNote(s){
+  if(s.tb)return '';
+  const [a,b]=s.pts;if(a!==b||a<3)return '';
+  const d=s.cfg.deuce;
+  if(d==='golden'||(d==='star'&&a-2>=3)){
+    const r=1-s.cfg.rot[curServer(s)][0];
+    return `Přijímajícím: „${tn(s,r)}, kterou stranu příjmu volíte?“`;
+  }
+  return '';
+}
+function serverNote(s){ /* první 4 hry setu – hlásí se podávající */
+  if(s.tb||s.pts[0]+s.pts[1]>0)return '';
+  if(s.games[0]+s.games[1]<4)return ` Podává ${pname(s,curServer(s))}.`;
+  return '';
+}
+function matchEndPhrase(s){
+  const w=s.winner,sw=setWins(s);
+  const sc=s.sets.map(x=>{const v=x.sup?x.tb:x.g;return `${num(v[w])} ${num(v[1-w])}`}).join(', ');
+  if(s.cfg.format==='1'){const x=s.sets[0];const v=x.g;return `Hra, set a zápas ${tn(s,w)}, ${fem(v[w])} ${hry(v[w])} na ${acc(v[1-w])}.`}
+  return `Hra, set a zápas ${tn(s,w)}. Dva sety na ${sw[1-w]?'jeden':'nulu'}: ${sc}.`;
+}
+/* vrací {now, next, note} */
+function callFor(s,prev){
+  if(s.done)return {now:matchEndPhrase(s)};
+  if(!prev&&s.log.length===0&&(s.pts[0]+s.pts[1]+s.games[0]+s.games[1]+s.sets.length)>0)return {now:pointPhrase(s)};
+  if(!prev||s.log.length===0){
+    if(s.timer&&s.timer.kind==='warm')return {now:'Rozehrávka, tři minuty.',note:'Pak „Dvě minuty.“, „Jedna minuta.“, na konci „Rozehrávka skončila.“ · Představení: „Po mé levici '+tn(s,s.left)+', po mé pravici '+tn(s,1-s.left)+'.“'};
+    return {now:`První set. Podává ${pname(s,curServer(s))}. Hrajte.`,note:'Před tím los: „Los vyhrála dvojice …, zvolila si podání / příjem / stranu.“'};
+  }
+  const ns=s.sets.length>prev.sets.length;
+  if(ns){
+    const x=s.sets[s.sets.length-1],i=s.sets.length-1,w=x.g[0]>x.g[1]?0:1,sw=setWins(s);
+    let t=`Hra a ${setName(s,i)} ${tn(s,w)}, ${fem(x.g[w])} ${hry(x.g[w])} na ${acc(x.g[1-w])}.`;
+    if(sw[0]===sw[1])t+=' Jeden set obě.';
+    if(s.tb===10)return {now:t+` Rozhodující super tie-break do deseti bodů. Podává ${pname(s,curServer(s))}.`};
+    return {now:t,next:`Čas. ${cap(setName(s,s.sets.length))}. Podává ${pname(s,curServer(s))}.`};
+  }
+  const gp=prev.games[0]+prev.games[1],gn=s.games[0]+s.games[1];
+  if(gn>gp){
+    const w=s.games[0]>prev.games[0]?0:1;
+    let t=`Hra ${tn(s,w)}. `;
+    if(s.tb===7)t+='Šest her obě. Tie-break.';
+    else t+=gamesPhrase(s,s.games,s.sets.length);
+    return {now:t+serverNote(s),next:s.timer&&s.timer.kind==='change'?'Po pauze: „Čas.“':''};
+  }
+  let t=pointPhrase(s);
+  if(s.tb&&(s.pts[0]+s.pts[1])%6===0)t+=' Výměna stran.';
+  return {now:t,note:decidingNote(s)};
+}
+function renderCall(){
+  const box=$('call');if(!box)return;
+  box.hidden=!CALLS||document.body.classList.contains('board');
+  if(box.hidden)return;
+  const c=callFor(S,H[H.length-1]);
+  let h=`<span class="cl">Hlas</span><div class="ct"><q>${esc(c.now)}</q>`;
+  if(c.next)h+=`<small>${c.next.startsWith('Po pauze')?esc(c.next):'Po pauze: „'+esc(c.next)+'“'}</small>`;
+  if(c.note)h+=`<small>${esc(c.note)}</small>`;
+  h+=`</div><button class="btn" id="tahakBtn">Tahák</button>`;
+  box.innerHTML=h;
+  $('tahakBtn').onclick=openTahak;
+}
+function setCalls(on){CALLS=on;try{localStorage.setItem(CKEY,on?'1':'0')}catch(e){};render()}
+
+/* ---------- tahák ---------- */
+function openTahak(){
+  const s=S,A=tn(s,0),B=tn(s,1),a1=s.cfg.names[0][0],b1=s.cfg.names[1][0];
+  const d=s.cfg.deuce;
+  const SEC=[
+   ['Zahájení',[
+    ['Představení',`„Po mé levici ${tn(s,s.left)}, po mé pravici ${tn(s,1-s.left)}.“`],
+    ['Los',`„Los vyhrála dvojice ${A}, zvolila si podání / příjem / stranu.“`],
+    ['Rozehrávka',`„Rozehrávka, tři minuty.“ → „Dvě minuty.“ → „Jedna minuta.“ → „Rozehrávka skončila.“`],
+    ['Start',`„První set. Podává ${pname(s,curServer(s))}. Hrajte.“`],
+    ['První 4 hry setu',`Před hrou ohlas podávajícího: „Podává …“`],
+    ['Diváci',`„Ticho, prosím. Děkuji.“ · „Prosím, posaďte se.“ · „Během hry nefoťte s bleskem.“ · „Počkejte, prosím.“`]]],
+   ['Stav v gamu',[
+    ['Pravidlo','Vždy první skóre podávající dvojice (mimo tie-break). Hned po bodu, nahlas, ke všem čtyřem hráčům.'],
+    ['15:0 / 0:15','„Patnáct nula.“ / „Nula patnáct.“'],
+    ['15:15 · 30:30','„Patnáct obě.“ · „Třicet obě.“'],
+    ['40:40','„Shoda.“ – nikdy „čtyřicet obě“'],
+    ['Výhoda',`„Výhoda ${A}.“ – vždy se jmény, nikdy „výhoda podání / příjem“`],
+    [d==='golden'?'Zlatý bod':d==='star'?'Star point':'Výhody',
+      d==='golden'?'„Shoda. Zlatý bod.“ → přijímající volí stranu příjmu'
+      :d==='star'?'„Shoda.“ → „Výhoda X.“ → „Druhá shoda.“ → „Druhá výhoda X.“ → „Shoda. Hvězdný bod.“ → přijímající volí stranu, pozice už nemění'
+      :'„Shoda.“ → „Výhoda X.“ → „Shoda.“ … bez omezení'],
+    ['Konec gamu',`„Hra ${A}.“ + stav her`]]],
+   ['Průběh setu',[
+    ['1:0','„Hra … První hra, první set.“'],
+    ['3:2',`„Hra ${A}. ${A} vedou tři hry na dvě, první set.“ – vedoucí jménem a první`],
+    ['Rovnost','„Jedna hra obě“ · „Pět her obě, první set.“'],
+    ['6:6','„Hra … Šest her obě. Tie-break.“'],
+    ['Konec setu',`„Hra a první set ${A}, šest her na čtyři.“ → pauza 120 s`],
+    ['Další set',`„Čas.“ – „Druhý set. Podává …“ / „Rozhodující set. Podává …“`]]],
+   ['Tie-break a konec',[
+    ['Skóre TB',`Vedoucí první + jména: „Dva jedna, ${A}.“ · rovnost „Jedna obě.“ · vždy „nula“, nikdy „láska“`],
+    ['Strany v TB','Po každých 6 bodech, bez odpočinku.'],
+    ['Konec TB',`„Hra a první set ${A}, sedm her na šest.“ (zápis 7:6 (9:7))`],
+    ['Super TB',`„… Jeden set obě. Rozhodující super tie-break do deseti bodů. Podává …“`],
+    ['Konec zápasu',`„Hra, set a zápas ${A}. Dva sety na jeden: šest tři, čtyři šest, deset osm.“`]]],
+   ['Výroky během výměny',[
+    ['Chybné podání','„Chyba.“ (dvojchyba = jen „Chyba.“ a stav)'],
+    ['Přešlap','„Chyba nohou.“'],
+    ['Síť při podání','„Síť. První podání.“ / „Síť. Druhé podání.“'],
+    ['Míč mimo','„Aut.“ – nikdy „přes“, „ven“'],
+    ['Druhý dopad','„Dvojitý dopad.“'],
+    ['Dotek sítě hráčem','„Dotek.“'],
+    ['Nedovolený úder','„Nedovolený úder.“'],
+    ['Opakování','„Opakovat.“ · prasklý míč: „Opakovat. Nový míč, prosím.“'],
+    ['Úmyslné rušení','„Bránění ve hře.“'],
+    ['Oprava','„Oprava, míč byl dobrý.“ / „Oprava, aut.“ / „Oprava, chyba.“']]],
+   ['Čas a kodex',[
+    ['Limity','20 s mezi body · 90 s výměna stran (po 1. hře setu a v TB bez pauzy) · 120 s mezi sety · 3 min ošetření'],
+    ['Časový přestupek 1.',`„Časový přestupek. Napomenutí, ${a1}.“`],
+    ['Časový přestupek 2.',`Podávající: „Časový přestupek. Ztráta prvního podání, ${a1}.“ · přijímající: ztráta bodu`],
+    ['Kodex 1.',`„Porušení pravidel chování, nevhodné zacházení s raketou. Napomenutí, ${b1} – první pro dvojici ${B}.“`],
+    ['Kodex 2.','„… Druhé napomenutí, ztráta bodu.“'],
+    ['Vážné chování','„Na kurt byl přivolán supervizor / hlavní rozhodčí.“ – o diskvalifikaci nerozhoduj sám']]],
+   ['Ošetření, video, přerušení',[
+    ['Fyzio','„Na kurt byl přivolán fyzioterapeut.“ → „… nyní čerpá lékařskou přestávku.“'],
+    ['Odpočet (ne divákům)','„Tři minuty.“ „Dvě minuty.“ „Jedna minuta.“ „Třicet sekund.“ „Ošetření ukončeno.“ → „Čas.“'],
+    ['Video','„Dvojice … požádala o video kontrolu.“ → „Podle video kontroly byl míč dobrý / aut.“'],
+    ['Video nedostupné','„Video kontrola není k dispozici, původní rozhodnutí platí.“'],
+    ['Přerušení','„Hra je přerušena.“ Před pokračováním ohlas stav a podávajícího.']]]
+  ];
+  $('tahakBody').innerHTML=SEC.map(([h,rows])=>`<section><h3>${h}</h3><dl>${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>`).join('');
+  $('tahakOv').hidden=false;
+}
 
 /* =================== VIEWS =================== */
 const VKEY='padelZapis.view';
@@ -907,7 +1178,7 @@ if(!FEATURE_AMER){v0='match';document.querySelectorAll('[data-home]').forEach(b=
 if(location.hash==='#tabule'){v0='match';document.body.classList.add('board')}
 if(FEATURE_AMER&&location.hash==='#tabule-americano'){v0='amer';document.body.classList.add('board')}
 go(v0);wake();
-setInterval(()=>{tick();if(Date.now()-S.swapAt<10000)render()},1000);
+setInterval(()=>{tick();if(S.timer&&S.timer.end)tickTimer();else if(Date.now()-S.swapAt<10000)render()},1000);
 })();
 </script>
 </body>
