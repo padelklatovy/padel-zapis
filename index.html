@@ -484,8 +484,8 @@ body{margin:0}
     <div class="grid2">
       <fieldset><legend>Rozcvička</legend><div class="seg">
         <label><input type="radio" name="warm" value="0"><span>Bez</span></label>
+        <label><input type="radio" name="warm" value="60"><span>1 min<small>po přerušení</small></span></label>
         <label><input type="radio" name="warm" value="180" checked><span>3 min</span></label>
-        <label><input type="radio" name="warm" value="300"><span>5 min</span></label>
       </div></fieldset>
       <fieldset><legend>Pauzy · výměna stran 90 s, mezi sety 120 s</legend><div class="seg">
         <label><input type="radio" name="brk" value="1" checked><span>Odpočítávat</span></label>
@@ -991,7 +991,8 @@ function callFor(s,prev){
   if(s.done)return {now:matchEndPhrase(s)};
   if(!prev&&s.log.length===0&&(s.pts[0]+s.pts[1]+s.games[0]+s.games[1]+s.sets.length)>0)return {now:pointPhrase(s)};
   if(!prev||s.log.length===0){
-    if(s.timer&&s.timer.kind==='warm')return {now:'Rozehrávka, tři minuty.',note:'Pak „Dvě minuty.“, „Jedna minuta.“, na konci „Rozehrávka skončila.“ · Představení: „Po mé levici '+tn(s,s.left)+', po mé pravici '+tn(s,1-s.left)+'.“'};
+    if(s.timer&&s.timer.kind==='warm'){const one=s.timer.dur<=60;
+      return {now:one?'Rozehrávka, jedna minuta.':'Rozehrávka, tři minuty.',note:(one?'Na konci „Rozehrávka skončila.“':'Pak „Dvě minuty.“, „Jedna minuta.“, na konci „Rozehrávka skončila.“')+' · Představení: „Po mé levici '+tn(s,s.left)+', po mé pravici '+tn(s,1-s.left)+'.“'};}
     return {now:`První set. Podává ${pname(s,curServer(s))}. Hrajte.`,note:'Před tím los: „Los vyhrála dvojice …, zvolila si podání / příjem / stranu.“'};
   }
   const ns=s.sets.length>prev.sets.length;
@@ -1036,7 +1037,7 @@ function openTahak(){
    ['Zahájení',[
     ['Představení',`„Po mé levici ${tn(s,s.left)}, po mé pravici ${tn(s,1-s.left)}.“`],
     ['Los',`„Los vyhrála dvojice ${A}, zvolila si podání / příjem / stranu.“`],
-    ['Rozehrávka',`„Rozehrávka, tři minuty.“ → „Dvě minuty.“ → „Jedna minuta.“ → „Rozehrávka skončila.“`],
+    ['Rozehrávka',`„Rozehrávka, tři minuty.“ → „Dvě minuty.“ → „Jedna minuta.“ → „Rozehrávka skončila.“ · max. 3 min; po přerušení 5–20 min jen 1 min, nad 20 min 3 min`],
     ['Start',`„První set. Podává ${pname(s,curServer(s))}. Hrajte.“`],
     ['První 4 hry setu',`Před hrou ohlas podávajícího: „Podává …“`],
     ['Diváci',`„Ticho, prosím. Děkuji.“ · „Prosím, posaďte se.“ · „Během hry nefoťte s bleskem.“ · „Počkejte, prosím.“`]]],
