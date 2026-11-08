@@ -57,6 +57,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .tmr.over .tl,.tmr.over b{color:#1A0603}
 .tmr .btn{min-height:40px;padding:0 12px;font-size:14px}
 .bmsg.tm{color:var(--ok)}
+.btn.wa{background:#1FA855;color:#04210F;text-decoration:none}
+.sendcfg summary{cursor:pointer;font-weight:600;color:var(--muted);font-size:14px}
 .call{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:12px;padding:8px 8px 8px 14px;min-width:0}
 .call .cl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--b);flex:none}
 .call .ct{flex:1;min-width:0;display:grid;gap:2px}
@@ -260,6 +262,41 @@ body.board[data-view=amer] #boardv,body.board[data-view=amscore] #boardv{display
   .pl{font-size:15px}
   .pts{font-size:min(16vw,34vh)}
 }
+#report{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  html,body{height:auto!important;overflow:visible!important}
+  body{background:#fff!important;color:#111!important;padding:0!important}
+  .screen,.app,.ov,#boardv,#amBoard{display:none!important}
+  #report{display:block!important}
+}
+#report{font-family:var(--body);color:#111;font-size:12.5px;line-height:1.45}
+#report h1{font-family:var(--disp);font-size:30px;text-transform:uppercase;letter-spacing:.03em;margin:0}
+#report .sub{color:#555;margin:2px 0 14px}
+#report .big{border:2px solid #111;border-radius:10px;padding:14px 18px 16px;margin-bottom:16px}
+#report .big .lab{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555}
+#report .big .win{font-family:var(--disp);font-size:30px;font-weight:800;text-transform:uppercase;line-height:1.05;margin:2px 0 6px}
+#report .big .score{font-family:var(--disp);font-size:56px;font-weight:800;line-height:1;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#report .big .score span{margin-right:.45em}
+#report .big .score small{font-size:.45em;font-weight:700;vertical-align:super;margin-left:2px}
+#report .big .sets{font-size:14px;font-weight:600;color:#333;margin-top:6px}
+#report .res{display:grid;grid-template-columns:1fr repeat(var(--n),48px);gap:4px 6px;align-items:center;margin:12px 0 0;padding-top:10px;border-top:1px solid #ccc}
+#report .res .t{font-size:15px;font-weight:600}
+#report .res .t.w{font-weight:800}
+#report .res .t.w::after{content:"  ✓ vítěz";font-size:11px;font-weight:700;color:#1a7f37}
+#report .res .c{font-family:var(--disp);font-size:26px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;color:#777}
+#report .res .c.w{color:#111;font-weight:800}
+#report table{width:100%;border-collapse:collapse;margin:6px 0 14px;font-variant-numeric:tabular-nums}
+#report th,#report td{border-bottom:1px solid #ccc;padding:4px 6px;text-align:left}
+#report th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#555}
+#report h2{font-family:var(--disp);font-size:17px;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 2px}
+#report .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px;margin-bottom:6px}
+#report .meta b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#555;font-weight:600}
+#report .sign{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:36px}
+#report .sign div{border-top:1px solid #111;padding-top:4px;font-size:11px;color:#555}
+#report .foot{margin-top:18px;font-size:10px;color:#777}
+#report .cols{columns:2;column-gap:24px}
+#report .cols table{break-inside:avoid}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
@@ -399,6 +436,7 @@ body{margin:0}
       <button class="btn" data-m="swapBtn">⇄ Prohodit strany</button>
       <button class="btn" data-m="calls" id="mCalls">Nápověda hlášení: zapnuto</button>
       <button class="btn" data-m="tahak">Tahák hlášení</button>
+      <button class="btn" data-m="pdf">PDF report zápasu</button>
       <button class="btn" data-m="boardBtn">Tabule pro diváky</button>
       <button class="btn" data-m="exp">Export dat</button>
       <button class="btn" data-m="close">Zavřít</button>
@@ -418,7 +456,11 @@ body{margin:0}
 <div class="ov" id="setup" hidden>
   <form class="card" id="setupForm">
     <h2>Nový zápas</h2>
-    <fieldset><legend>Turnaj / kurt</legend><input type="text" id="fEvt" placeholder="např. Klatovy Open · Kurt 1"></fieldset>
+    <div class="grid2">
+      <fieldset><legend>Turnaj / kurt</legend><input type="text" id="fEvt" placeholder="např. Klatovy Open · Kurt 1"></fieldset>
+      <fieldset><legend>Kategorie / kolo / č. zápasu</legend><input type="text" id="fRound" placeholder="např. Muži Open · semifinále"></fieldset>
+    </div>
+    <fieldset><legend>Rozhodčí</legend><input type="text" id="fRef" placeholder="jméno rozhodčího (do reportu)"></fieldset>
     <div class="grid2">
       <fieldset><legend class="a">Tým A</legend>
         <input type="text" id="fA1" placeholder="Hráč 1" required><input type="text" id="fA2" placeholder="Hráč 2" required></fieldset>
@@ -458,6 +500,14 @@ body{margin:0}
       <label><input type="radio" name="left" value="0" checked><span>Tým A</span></label>
       <label><input type="radio" name="left" value="1"><span>Tým B</span></label>
     </div></fieldset>
+    <details class="sendcfg">
+      <summary>Odesílání výsledků (nepovinné)</summary>
+      <div class="grid2" style="margin-top:10px">
+        <fieldset><legend>WhatsApp pořadatele</legend><input type="text" id="fWa" inputmode="tel" placeholder="např. 420777123456"></fieldset>
+        <fieldset><legend>Adresa Google tabulky (Apps Script)</legend><input type="text" id="fSheet" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec"></fieldset>
+      </div>
+      <p class="muted" style="margin:8px 0 0">Uloží se v tomto zařízení pro další zápasy. Číslo s předvolbou bez + a mezer. S vyplněnou tabulkou se výsledek po konci zápasu zapíše sám.</p>
+    </details>
     <div class="actions"><button type="button" class="btn" id="cancelSetup">Zrušit</button><button type="submit" class="btn primary">Začít zápas</button></div>
   </form>
 </div>
@@ -468,13 +518,20 @@ body{margin:0}
     <div class="result" id="endRes"></div>
     <div class="muted" id="endMeta"></div>
     <pre class="copy" id="endTxt"></pre>
+    <div class="muted" id="sendInfo"></div>
     <div class="actions">
       <button class="btn" id="endUndo">↶ Vrátit poslední bod</button>
       <button class="btn" id="copyBtn">Kopírovat záznam</button>
+      <button class="btn" id="shareBtn" hidden>Sdílet…</button>
+      <button class="btn" id="sheetBtn" hidden>Zapsat do tabulky</button>
+      <button class="btn" id="pdfBtn">PDF report</button>
+      <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Poslat přes WhatsApp</a>
       <button class="btn primary" id="endNew">Nový zápas</button>
     </div>
   </div>
 </div>
+
+<div id="report"></div>
 
 <script>
 (()=>{
@@ -579,6 +636,7 @@ function point(t){
     /* bez pauzy po 1. gamu setu a při výměnách v tie-breaku */
     else if(S.left!==before.left&&!before.tb&&(S.games[0]+S.games[1])!==1)startTimer('change');
   }
+  if(S.done&&PREFS.sheet)sendToSheet();
   save();render();flash(t);
 }
 function startTimer(kind,dur){dur=dur||BREAK[kind];S.timer={kind,dur,end:Date.now()+dur*1000,rang:false}}
@@ -664,14 +722,12 @@ function renderEnd(){
   const dur=fmtDur((s.end||Date.now())-s.start);
   $('endMeta').textContent=`Délka zápasu ${dur}`+(s.log.length?` · vyhrané body ${pw[0]} : ${pw[1]} (A : B)`:'');
   const d=new Date(s.start);
-  $('endTxt').textContent=[
-    `${s.cfg.event||'Zápas'} · ${d.toLocaleDateString('cs-CZ')} ${d.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}`,
-    `A: ${teamName(s,0)}`,`B: ${teamName(s,1)}`,
-    `Vítěz: ${w===0?'A':'B'} · ${teamName(s,w)}`,
-    `Výsledek (A:B): ${s.sets.map(setStr).join(', ')}`,
-    `Délka: ${dur}`+(s.log.length?` · body A:B ${pw[0]}:${pw[1]}`:''),
-    `Pravidla: ${{star:'Star point',golden:'Zlatý bod',adv:'Výhody'}[s.cfg.deuce]}, ${{3:'2 vítězné sety',stb:'2 sety + super TB',1:'1 set'}[s.cfg.format]}`
-  ].join('\n');
+  $('endTxt').textContent=resultText();
+  const wa=(PREFS.wa||'').replace(/\D/g,'');
+  $('waBtn').href='https://wa.me/'+wa+'?text='+encodeURIComponent(resultText());
+  $('shareBtn').hidden=!navigator.share;
+  $('sheetBtn').hidden=!PREFS.sheet;
+  $('sendInfo').textContent=PREFS.sheet?(s.sentAt?'Zapsáno do tabulky '+new Date(s.sentAt).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})+' ✓':'Do tabulky zatím neodesláno.'):'';
 }
 function tick(){const t=fmtClock((S.end||Date.now())-S.start);$('clock').textContent=t;$('bClock').textContent=t}
 function tickTimer(){
@@ -686,11 +742,108 @@ function tickTimer(){
 const fmtClock=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0')};
 const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+/* ---------- odesílání výsledku ---------- */
+const PKEY='padelZapis.prefs';
+let PREFS={};try{PREFS=JSON.parse(localStorage.getItem(PKEY)||'{}')||{}}catch(e){}
+function savePrefs(){PREFS.wa=$('fWa').value.trim();PREFS.sheet=$('fSheet').value.trim();PREFS.ref=$('fRef').value.trim();try{localStorage.setItem(PKEY,JSON.stringify(PREFS))}catch(e){}}
+function resultData(){
+  const s=S,w=s.winner,pw=[0,0];s.log.forEach(([t])=>pw[t]++);
+  const sw=setWins(s);
+  return {schema:'padel-zapis/1',key:String(s.start),event:s.cfg.event||'',round:s.cfg.round||'',
+    teamA:teamName(s,0),teamB:teamName(s,1),winner:w==null?'':(w===0?'A':'B'),winnerName:w==null?'':teamName(s,w),
+    score:s.sets.map(setStr).join(', '),sets:sw.join(':'),
+    start:new Date(s.start).toISOString(),end:s.end?new Date(s.end).toISOString():'',
+    minutes:Math.round(((s.end||Date.now())-s.start)/60000),pointsA:pw[0],pointsB:pw[1],
+    rules:({star:'Star point',golden:'Zlatý bod',adv:'Výhody'})[s.cfg.deuce]+', '+({3:'2 vítězné sety',stb:'2 sety + super TB',1:'1 set'})[s.cfg.format]};
+}
+function resultText(){
+  const r=resultData(),d=new Date(S.start);
+  return ['VÝSLEDEK ZÁPASU',
+    [r.event,r.round].filter(Boolean).join(' · ')||'Zápas',
+    `A: ${r.teamA}`,`B: ${r.teamB}`,
+    `Vítěz: ${r.winner} – ${r.winnerName}`,
+    `Skóre (A:B): ${r.score}`,
+    `Sety: ${r.sets} · délka ${r.minutes} min · ${d.toLocaleDateString('cs-CZ')} ${d.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}`
+  ].join('\n');
+}
+function sendToSheet(){
+  if(!PREFS.sheet)return;
+  try{
+    fetch(PREFS.sheet,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(resultData())})
+      .then(()=>{S.sentAt=Date.now();save();render()})
+      .catch(()=>{$('sendInfo').textContent='Do tabulky se nepodařilo odeslat – zkontrolujte připojení a zkuste „Zapsat do tabulky“.'});
+  }catch(e){}
+}
+
+/* ---------- PDF report ---------- */
+function gameLog(){
+  let st=fresh(S.cfg,0);const out=[];
+  S.log.forEach(([t,at])=>{
+    const before=st,srv=curServer(before);
+    st=applyPoint(st,t,false);
+    const gB=before.games[0]+before.games[1]+before.sets.length*100, gA=st.games[0]+st.games[1]+st.sets.length*100;
+    if(gA!==gB||st.done){
+      const setDone=st.sets.length>before.sets.length;
+      const g=setDone?st.sets[st.sets.length-1].g:st.games;
+      out.push({set:before.sets.length+1,winner:t,games:g.slice(),tb:before.tb?[...before.pts.map((v,i)=>v+(i===t?1:0))]:null,
+        sup:before.tb===10,server:before.tb?null:srv,at});
+    }
+  });
+  return out;
+}
+function buildReport(){
+  const s=S,r=resultData(),d=new Date(s.start),A=teamName(s,0),B=teamName(s,1);
+  const nm=i=>{const [t,p]=s.cfg.rot[i];return s.cfg.names[t][p]};
+  const games=gameLog(),sets=[...new Set(games.map(g=>g.set))];
+  const hm=ts=>new Date(ts).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
+  const setTables=sets.map(k=>{
+    const rows=games.filter(g=>g.set===k);
+    const sup=rows.some(g=>g.sup);
+    return `<table><thead><tr><th>${sup?'Super tie-break':k+'. set'}</th><th>Podával</th><th>Hru vyhrál</th><th>Stav A:B</th><th>Čas</th></tr></thead><tbody>${
+      rows.map((g,i)=>`<tr><td>${g.tb?(g.sup?'STB':'TB'):i+1}</td><td>${g.server==null?'—':esc(nm(g.server))}</td><td>${g.winner?'B':'A'}</td><td>${g.sup?`${g.tb[0]}:${g.tb[1]}`:g.tb?`${g.games[0]}:${g.games[1]} (${g.tb[0]}:${g.tb[1]})`:g.games.join(':')}</td><td>${hm(g.at)}</td></tr>`).join('')}</tbody></table>`;
+  }).join('');
+  const w=s.winner;
+  $('report').innerHTML=`
+  <h1>Zápis o utkání</h1>
+  <div class="sub">${esc([s.cfg.event,s.cfg.round].filter(Boolean).join(' · ')||'Padelový zápas')} · ${d.toLocaleDateString('cs-CZ')}</div>
+  <div class="big">
+    <div class="lab">${w==null?'Stav (nedohráno)':'Vítěz'}</div>
+    <div class="win">${w==null?esc(A)+' – '+esc(B):esc(teamName(s,w))}</div>
+    <div class="score">${(w==null?s.sets:s.sets).map(x=>{const v=x.sup?x.tb:x.g,o=w==null?0:w;
+      return `<span>${x.sup?'[':''}${v[o]}:${v[1-o]}${x.sup?']':''}${x.tb&&!x.sup?`<small>${Math.min(x.tb[0],x.tb[1])}</small>`:''}</span>`}).join('')||'—'}</div>
+    <div class="sets">${w==null?'':`${setWins(s)[w]}:${setWins(s)[1-w]} na sety · `}${esc(w==null?'':'poražený: '+teamName(s,1-w))}</div>
+    <div class="res" style="--n:${Math.max(s.sets.length,1)}">
+      <div class="t${w===0?' w':''}">A: ${esc(A)}</div>${s.sets.map(x=>{const v=x.sup?x.tb:x.g,ww=v[0]>v[1];return `<div class="c${ww?' w':''}">${v[0]}</div>`}).join('')}
+      <div class="t${w===1?' w':''}">B: ${esc(B)}</div>${s.sets.map(x=>{const v=x.sup?x.tb:x.g,ww=v[1]>v[0];return `<div class="c${ww?' w':''}">${v[1]}</div>`}).join('')}
+    </div>
+  </div>
+  <div class="meta">
+    <div><b>Výsledek (A:B)</b>${esc(r.score)||'—'}</div>
+    <div><b>Sety</b>${r.sets}</div>
+    <div><b>Vítěz</b>${w==null?'nedohráno':esc((w?'B – ':'A – ')+teamName(s,w))}</div>
+    <div><b>Začátek – konec</b>${hm(s.start)} – ${s.end?hm(s.end):'—'}</div>
+    <div><b>Délka</b>${r.minutes} min</div>
+    <div><b>Vyhrané body A:B</b>${r.pointsA}:${r.pointsB}</div>
+    <div><b>Pravidla</b>${esc(r.rules)}</div>
+    <div><b>Rozhodčí</b>${esc(s.cfg.ref||'')||'—'}</div>
+    <div><b>Pořadí podání</b>${s.cfg.rot.map((_,i)=>esc(nm(i))).join(' → ')}</div>
+  </div>
+  <h2>Průběh</h2>
+  <div class="cols">${setTables||'<p>Bez zaznamenaných bodů.</p>'}</div>
+  <div class="sign"><div>Rozhodčí${s.cfg.ref?': '+esc(s.cfg.ref):''}</div><div>Kapitán / hráč A</div><div>Kapitán / hráč B</div></div>
+  <div class="foot">Vytvořeno aplikací Padel Zápis · ${new Date().toLocaleString('cs-CZ')} · ID zápisu ${r.key}</div>`;
+}
+function printReport(){
+  buildReport();
+  try{window.print()}catch(e){}
+}
+
 /* ---------- setup ---------- */
 function openSetup(){
   try{document.querySelector(`input[name=calls][value="${CALLS?1:0}"]`).checked=true}catch(e){}
   const c=S.sample?null:S.cfg;
-  $('fEvt').value=c?c.event:'';
+  $('fEvt').value=c?c.event:'';$('fRound').value=c&&c.round?c.round:'';$('fRef').value=PREFS.ref||'';
+  $('fWa').value=PREFS.wa||'';$('fSheet').value=PREFS.sheet||'';
   ['fA1','fA2','fB1','fB2'].forEach((id,i)=>$(id).value=c?c.names[i>>1][i&1]:'');
   fillServers();$('setup').hidden=false;$('fA1').focus();
 }
@@ -710,7 +863,8 @@ $('fS1').addEventListener('change',fillRecv);
 $('setupForm').addEventListener('submit',e=>{
   e.preventDefault();
   const f=new FormData(e.target),[st,sp]=$('fS1').value.split('-').map(Number),[rt,rp]=$('fR1').value.split('-').map(Number);
-  const cfg={event:$('fEvt').value.trim(),names:names(),format:f.get('fmt'),deuce:f.get('deuce'),rot:[[st,sp],[rt,rp],[st,1-sp],[rt,1-rp]],warm:+f.get('warm'),breaks:f.get('brk')==='1'};
+  savePrefs();
+  const cfg={event:$('fEvt').value.trim(),round:$('fRound').value.trim(),ref:$('fRef').value.trim(),names:names(),format:f.get('fmt'),deuce:f.get('deuce'),rot:[[st,sp],[rt,rp],[st,1-sp],[rt,1-rp]],warm:+f.get('warm'),breaks:f.get('brk')==='1'};
   CALLS=f.get('calls')==='1';try{localStorage.setItem(CKEY,CALLS?'1':'0')}catch(e){}
   S=fresh(cfg,+f.get('left'));H=[];
   if(cfg.warm>0)S.timer={kind:'warm',dur:cfg.warm,end:null};
@@ -726,6 +880,7 @@ document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
   if(m==='exp')document.querySelector('[data-export="match"]').click();
   else if(m==='calls')setCalls(!CALLS);
   else if(m==='tahak')openTahak();
+  else if(m==='pdf')printReport();
   else if(m!=='close')$(m).click();
 });
 
@@ -742,6 +897,9 @@ function board(on){
   render();aRender();
 }
 $('boardBtn').onclick=()=>board(true);$('bExit').onclick=()=>board(false);
+$('pdfBtn').onclick=printReport;
+$('sheetBtn').onclick=()=>{$('sendInfo').textContent='Odesílám…';sendToSheet()};
+$('shareBtn').onclick=()=>{try{navigator.share({title:'Výsledek zápasu',text:resultText()}).catch(()=>{})}catch(e){}};
 $('copyBtn').onclick=()=>{const t=$('endTxt').textContent;
   navigator.clipboard?.writeText(t).then(()=>$('copyBtn').textContent='Zkopírováno ✓').catch(sel)||sel();
   function sel(){const r=document.createRange();r.selectNodeContents($('endTxt'));const g=getSelection();g.removeAllRanges();g.addRange(r)}};
