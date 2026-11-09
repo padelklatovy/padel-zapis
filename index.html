@@ -33,38 +33,40 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 
 /* header */
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.brand{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+.brand{font-family:var(--disp);font-weight:700;font-size:clamp(20px,2vw,28px);letter-spacing:.04em;text-transform:uppercase}
 .brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.02em;text-transform:none;color:var(--muted)}
 .spacer{flex:1}
-.clock{font-family:var(--disp);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
+.clock{font-family:var(--disp);font-size:clamp(22px,2.4vw,34px);font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
 .chip{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
 .chip.sample{background:rgba(255,107,90,.16);color:var(--hot)}
-.btn{min-height:44px;padding:0 14px;border-radius:10px;background:var(--surface-2);font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+.btn{min-height:clamp(44px,4.4vw,56px);padding:0 clamp(14px,1.4vw,22px);border-radius:12px;background:var(--surface-2);font-weight:600;font-size:clamp(15px,1.4vw,19px);display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:var(--line)}
 .btn.primary{background:var(--a);color:#061220}
 
 /* status strip */
-.status{display:flex;gap:8px;align-items:center;min-height:40px;flex-wrap:wrap}
-.msg{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.03em;text-transform:uppercase}
+.status{display:flex;gap:8px;align-items:center;min-height:0;flex-wrap:wrap}
+.msg{font-family:var(--disp);font-weight:700;font-size:clamp(22px,2.2vw,32px);letter-spacing:.03em;text-transform:uppercase}
 .msg.hot{color:var(--hot)}
 .tag{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:6px}
 .tag.a{background:var(--a);color:#061220}.tag.b{background:var(--b);color:#1B1600}
-.tmr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border-radius:12px;padding:6px 8px 6px 14px;margin-left:auto}
-.tmr .tl{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.tmr b{font-family:var(--disp);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ok);min-width:3.2ch;text-align:center}
+.tmr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;background:rgba(10,22,36,.94);border:2px solid var(--line);border-radius:22px;padding:18px 34px 20px;box-shadow:0 20px 60px rgba(0,0,0,.55);min-width:min(420px,90%);text-align:center}
+.tmr .tl{font-size:clamp(15px,1.6vw,22px);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tmr b{font-family:var(--disp);font-weight:800;font-size:clamp(96px,14vw,220px);line-height:.9;font-variant-numeric:tabular-nums;color:var(--ok);min-width:3.2ch;text-align:center}
+.tmr .tb{display:flex;gap:10px;margin-top:6px}
 .tmr.warn b{color:var(--b)}
-.tmr.over{background:var(--hot);animation:pulse 1s ease-in-out infinite}
+.tmr.over{background:var(--hot);border-color:var(--hot);animation:pulse 1s ease-in-out infinite}
 .tmr.over .tl,.tmr.over b{color:#1A0603}
-.tmr .btn{min-height:40px;padding:0 12px;font-size:14px}
+.tmr .btn{min-height:56px;padding:0 24px;font-size:19px}
 .bmsg.tm{color:var(--ok)}
 .btn.wa{background:#1FA855;color:#04210F;text-decoration:none}
 .sendcfg summary{cursor:pointer;font-weight:600;color:var(--muted);font-size:14px}
 .call{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:12px;padding:8px 8px 8px 14px;min-width:0}
 .call .cl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--b);flex:none}
 .call .ct{flex:1;min-width:0;display:grid;gap:2px}
-.call q{font-size:clamp(17px,2.2vw,24px);font-weight:600;line-height:1.25;quotes:"„" "“"}
+.call q{font-size:clamp(18px,2.6vw,36px);font-weight:600;line-height:1.25;quotes:"„" "“"}
 .call small{font-size:13px;color:var(--muted);line-height:1.35}
-.call .btn{min-height:40px;font-size:14px;flex:none}
+.call .btn{min-height:48px;font-size:clamp(14px,1.3vw,18px);flex:none}
+.call small{font-size:clamp(13px,1.15vw,17px)!important}
 #tahakOv .card{width:min(900px,100%)}
 #tahakBody{display:grid;gap:18px;-webkit-user-select:text;user-select:text}
 #tahakBody h3{margin:0 0 6px;font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.04em;color:var(--b)}
@@ -76,35 +78,36 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 @keyframes pulse{50%{opacity:.55}}
 
 /* court */
-.court{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+#tmrWrap{display:contents}
+.court{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
 .team{position:relative;border-radius:18px;background:var(--surface);display:grid;grid-template-rows:auto 1fr auto;padding:18px 20px;min-height:0;overflow:hidden;text-align:left;transition:transform .08s}
 .team:active{transform:scale(.985)}
 .team.A{box-shadow:inset 0 5px 0 var(--a)}.team.B{box-shadow:inset 0 5px 0 var(--b)}
 .team.flash.A{background:var(--a-soft)}.team.flash.B{background:var(--b-soft)}
 .players{display:flex;flex-direction:column;gap:4px}
-.pl{font-size:clamp(17px,2.2vw,24px);font-weight:500;color:var(--muted);display:flex;align-items:center;gap:8px}
+.pl{font-size:clamp(18px,3vw,44px);font-weight:500;color:var(--muted);display:flex;align-items:center;gap:8px}
 .pl.srv{color:var(--ink);font-weight:600}
 .ball{width:14px;height:14px;border-radius:50%;background:#D9EE3A;box-shadow:inset -2px -2px 0 rgba(0,0,0,.18);flex:none}
-.srvside{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--b);margin-left:4px}
+.srvside{font-size:clamp(13px,1.2vw,18px);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--b);margin-left:4px}
 .team.A .srvside{color:var(--a)}
-.pts{align-self:center;justify-self:center;font-family:var(--disp);font-weight:800;line-height:.85;font-size:clamp(64px,min(17vw,30vh),230px);font-variant-numeric:tabular-nums}
+.pts{align-self:center;justify-self:center;font-family:var(--disp);font-weight:800;line-height:.85;font-size:clamp(64px,min(22vw,36vh),360px);font-variant-numeric:tabular-nums}
 .team,.undo,.btn{touch-action:manipulation}
 .menu-only{display:none}
 .menu-list{display:grid;gap:10px}
 .menu-list .btn{min-height:56px;font-size:17px;justify-content:center}
 .team.A .pts{color:var(--a)}.team.B .pts{color:var(--b)}
 .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-.games{font-family:var(--disp);font-weight:700;font-size:clamp(40px,5.5vw,64px);line-height:1;font-variant-numeric:tabular-nums}
-.games small{display:block;font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.games{font-family:var(--disp);font-weight:700;font-size:clamp(44px,7.5vw,120px);line-height:1;font-variant-numeric:tabular-nums}
+.games small{display:block;font-family:var(--body);font-size:clamp(12px,1.1vw,16px);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .setsmini{display:flex;gap:6px}
-.setsmini span{font-family:var(--disp);font-weight:600;font-size:22px;min-width:34px;text-align:center;padding:2px 6px;border-radius:6px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.setsmini span{font-family:var(--disp);font-weight:600;font-size:clamp(22px,3vw,48px);min-width:1.6em;text-align:center;padding:2px 6px;border-radius:6px;background:var(--surface-2);font-variant-numeric:tabular-nums}
 .setsmini span.w{color:var(--ink);background:var(--line)}
-.hint{position:absolute;top:16px;right:18px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.7}
+.hint{position:absolute;top:16px;right:18px;font-size:clamp(12px,1.1vw,16px);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.7}
 
 /* bottom bar */
 .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.undo{min-height:56px;padding:0 22px;font-size:18px;border-radius:12px;background:var(--surface-2);font-weight:600}
-.log{flex:1;min-width:0;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.undo{min-height:clamp(56px,5vw,72px);padding:0 clamp(22px,2vw,34px);font-size:clamp(18px,1.8vw,26px);border-radius:12px;background:var(--surface-2);font-weight:600}
+.log{flex:1;min-width:0;font-size:clamp(14px,1.4vw,20px);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* board */
 .boardv{display:none}
@@ -333,6 +336,7 @@ body{margin:0}
   <div class="status" id="status"></div>
   <div class="call" id="call" hidden></div>
   <main class="court" id="court">
+    <div id="tmrWrap"></div>
     <button class="team" id="p0" data-slot="0"></button>
     <button class="team" id="p1" data-slot="1"></button>
   </main>
@@ -655,7 +659,7 @@ function timerHtml(){
   const left=timerLeft(),over=T.end&&left<=0,warn=T.end&&left>0&&left<=15;
   const btns=!T.end?'<button class="btn primary" data-t="go">Spustit</button><button class="btn" data-t="skip">Přeskočit</button>'
     :'<button class="btn" data-t="skip">'+(over?'Hrajeme':'Ukončit')+'</button>';
-  return `<div class="tmr${over?' over':warn?' warn':''}" id="tmr"><span class="tl">${over?(T.kind==='warm'?'Konec rozcvičky':'Čas vypršel'):TLABEL[T.kind]+(T.swap?' · výměna stran':'')}</span><b id="tmrTime">${fmtT(over?-left:left).replace('+','')}</b>${btns}</div>`;
+  return `<div class="tmr${over?' over':warn?' warn':''}" id="tmr"><span class="tl">${over?(T.kind==='warm'?'Konec rozcvičky':'Čas vypršel'):TLABEL[T.kind]+(T.swap?' · výměna stran':'')}</span><b id="tmrTime">${fmtT(over?-left:left).replace('+','')}</b><div class="tb">${btns}</div></div>`;
 }
 function undo(){if(!H.length)return;S=H.pop();save();render()}
 function flash(t){const el=$('p'+(S.left===t?0:1));el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),180)}
@@ -682,8 +686,8 @@ function render(){
   let h=`<span class="msg${stt.hot?' hot':''}">${esc(stt.msg)}</span>`;
   stt.tags.forEach(([t,l])=>h+=`<span class="tag ${t?'b':'a'}">${l} ${t?'B':'A'}</span>`);
   if(Date.now()-s.swapAt<9000&&!s.timer)h+=`<span class="swap">⇄ Výměna stran</span>`;
-  h+=timerHtml();
   $('status').innerHTML=h;
+  $('tmrWrap').innerHTML=timerHtml();
   const done=s.sets.map(setStr).join('  ');
   $('log').textContent=(done?'Sety: '+done+'  ·  ':'')+'Aktuální set: '+s.games.join(':')+(H.length?'  ·  zaznamenáno bodů: '+s.log.length:'');
   $('undoBtn').disabled=!H.length;$('undoBtn').style.opacity=H.length?1:.4;
@@ -872,7 +876,7 @@ $('setupForm').addEventListener('submit',e=>{
 });
 $('cancelSetup').onclick=()=>$('setup').hidden=true;
 $('tahakClose').onclick=()=>$('tahakOv').hidden=true;
-$('status').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b||!S.timer)return;unlockAudio();
+$('court').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b||!S.timer)return;unlockAudio();
   if(b.dataset.t==='go'){S.timer.end=Date.now()+S.timer.dur*1000;S.timer.rang=false}else S.timer=null;save();render()});
 $('menuBtn').onclick=()=>{$('mCalls').textContent='Nápověda hlášení: '+(CALLS?'zapnuto':'vypnuto');$('menuOv').hidden=false};
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
