@@ -68,6 +68,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .call .btn{min-height:48px;font-size:clamp(14px,1.3vw,18px);flex:none}
 .call small{font-size:clamp(13px,1.15vw,17px)!important}
 #tahakOv .card{width:min(900px,100%)}
+.stickyhead{position:sticky;top:-22px;z-index:3;margin:-22px -22px 0;padding:14px 22px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:18px 18px 0 0}
+.stickyhead h2{margin:0}
+.stickyfoot{position:sticky;bottom:-22px;z-index:3;margin:0 -22px -22px;padding:14px 22px;background:var(--surface);border-top:1px solid var(--line);border-radius:0 0 18px 18px}
 #tahakBody{display:grid;gap:18px;-webkit-user-select:text;user-select:text}
 #tahakBody h3{margin:0 0 6px;font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.04em;color:var(--b)}
 #tahakBody dl{margin:0;display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:6px 14px}
@@ -450,10 +453,10 @@ body{margin:0}
 
 <div class="ov" id="tahakOv" hidden>
   <div class="card">
-    <h2>Tahák hlášení</h2>
+    <div class="stickyhead"><h2>Tahák hlášení</h2><button class="btn primary" id="tahakClose">✕ Zavřít</button></div>
     <p class="muted" style="margin:0">Podle Manuálu rozhodčího (finále extraligy 2026) a FIP Duties and Procedures. České věty jsou pracovní překlady. Jména jsou z aktuálního zápasu.</p>
     <div id="tahakBody"></div>
-    <div class="actions"><button class="btn primary" id="tahakClose">Zavřít</button></div>
+    <div class="actions"><button class="btn" id="tahakClose2">Zavřít</button></div>
   </div>
 </div>
 
@@ -512,7 +515,7 @@ body{margin:0}
       </div>
       <p class="muted" style="margin:8px 0 0">Uloží se v tomto zařízení pro další zápasy. Číslo s předvolbou bez + a mezer. S vyplněnou tabulkou se výsledek po konci zápasu zapíše sám.</p>
     </details>
-    <div class="actions"><button type="button" class="btn" id="cancelSetup">Zrušit</button><button type="submit" class="btn primary">Začít zápas</button></div>
+    <div class="actions stickyfoot"><button type="button" class="btn" id="cancelSetup">Zrušit</button><button type="submit" class="btn primary">Začít zápas</button></div>
   </form>
 </div>
 
@@ -875,7 +878,8 @@ $('setupForm').addEventListener('submit',e=>{
   save();$('setup').hidden=true;render();wake();
 });
 $('cancelSetup').onclick=()=>$('setup').hidden=true;
-$('tahakClose').onclick=()=>$('tahakOv').hidden=true;
+$('tahakClose').onclick=$('tahakClose2').onclick=()=>$('tahakOv').hidden=true;
+$('tahakOv').addEventListener('click',e=>{if(e.target===$('tahakOv'))$('tahakOv').hidden=true});
 $('court').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b||!S.timer)return;unlockAudio();
   if(b.dataset.t==='go'){S.timer.end=Date.now()+S.timer.dur*1000;S.timer.rang=false}else S.timer=null;save();render()});
 $('menuBtn').onclick=()=>{$('mCalls').textContent='Nápověda hlášení: '+(CALLS?'zapnuto':'vypnuto');$('menuOv').hidden=false};
@@ -1095,7 +1099,7 @@ function openTahak(){
     ['Přerušení','„Hra je přerušena.“ Před pokračováním ohlas stav a podávajícího.']]]
   ];
   $('tahakBody').innerHTML=SEC.map(([h,rows])=>`<section><h3>${h}</h3><dl>${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>`).join('');
-  $('tahakOv').hidden=false;
+  $('tahakOv').hidden=false;try{$('tahakOv').querySelector('.card').scrollTop=0}catch(e){}
 }
 
 /* =================== VIEWS =================== */
