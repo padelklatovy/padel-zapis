@@ -849,6 +849,9 @@ const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* ---------- odesílání výsledku ---------- */
 const PKEY='padelZapis.prefs';
 let PREFS={};try{PREFS=JSON.parse(localStorage.getItem(PKEY)||'{}')||{}}catch(e){}
+/* výchozí tabulka výsledků (Padel Zápis – výsledky) */
+const DEFAULT_SHEET='https://script.google.com/macros/s/AKfycby-uO7ubeBPNtw9jwtgRPb9ZoDEpiUToArmpvxHKS_ScbUIr4LNGIrFr4tYoMmMRn57/exec';
+if(!PREFS.sheet)PREFS.sheet=DEFAULT_SHEET;
 function savePrefs(){PREFS.wa=$('fWa').value.trim();PREFS.sheet=$('fSheet').value.trim();PREFS.ref=$('fRef').value.trim();try{localStorage.setItem(PKEY,JSON.stringify(PREFS))}catch(e){}}
 function resultData(){
   const s=S,w=s.winner,pw=[0,0];s.log.forEach(([t])=>pw[t]++);
