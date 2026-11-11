@@ -14,7 +14,7 @@
 const SHEET_NAME = 'Výsledky';
 const HEADER = ['Přijato', 'Turnaj / kurt', 'Kategorie / kolo', 'Tým A', 'Tým B', 'Vítěz',
   'Vítězný pár', 'Skóre (A:B)', 'Sety A:B', 'Začátek', 'Konec', 'Délka (min)',
-  'Body A', 'Body B', 'Pravidla', 'ID zápisu', 'Zdroj', 'Potvrdili'];
+  'Body A', 'Body B', 'Pravidla', 'ID zápisu', 'Zdroj', 'Potvrdili', 'Přepsáno do Rankedin'];
 const KEY_COL = 16; // sloupec „ID zápisu“
 
 function doPost(e) {
@@ -45,8 +45,14 @@ function doPost(e) {
       }
     }
     sh.appendRow(row);
+    sh.getRange(sh.getLastRow(), HEADER.length).insertCheckboxes(); // recepce odškrtne po přepsání
     return ContentService.createTextOutput('ok');
   } finally {
     lock.releaseLock();
   }
+}
+
+// Kontrola nasazení: otevření adresy …/exec v prohlížeči vypíše OK.
+function doGet() {
+  return ContentService.createTextOutput('Padel Zápis – tabulka výsledků je připravená (OK).');
 }
