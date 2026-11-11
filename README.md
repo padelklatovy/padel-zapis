@@ -6,7 +6,8 @@ Adresa: https://padelklatovy.github.io/padel-zapis/
 ## Funkce
 - Star point (FIP 2026), zlatý bod nebo výhody; tie-break při 6:6; 2 sety / 2 sety + super TB / 1 set
 - Pořadí a strana podání, výměna stran, setbol a mečbol, krok zpět
-- Rozehrávka 3/5 min, pauzy 90 s (výměna stran) a 120 s (mezi sety)
+- Rozehrávka 1 / 3 min, pauzy 90 s (výměna stran) a 120 s (mezi sety)
+- „Jen výsledek“ pro zápasy bez rozhodčího
 - Nápověda hlášení rozhodčího a tahák (vypínatelné)
 - Tabule pro diváky (tlačítko Tabule nebo adresa s `#tabule`)
 - Výsledek pořadateli: Google tabulka (automaticky), WhatsApp, sdílení, PDF report „Zápis o utkání“
@@ -17,7 +18,7 @@ Adresa: https://padelklatovy.github.io/padel-zapis/
 
 ## Soubory
 - `index.html` – celá aplikace (jeden soubor, bez serveru)
-- `vysledky-apps-script.gs` – skript pro Google tabulku s výsledky (návod v hlavičce souboru)
+- `vysledky-apps-script.gs` – skript pro Google tabulku s výsledky (návod v hlavičce souboru); výchozí tabulka „Padel Zápis – výsledky“ je v aplikaci nastavená (`DEFAULT_SHEET`)
 
 ## Provoz
 Hostováno na GitHub Pages. Data se ukládají v prohlížeči zařízení (localStorage), bez přihlášení.
